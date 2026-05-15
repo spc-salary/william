@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>نظام شؤون الموظفين – مديرية غاز الجنوب</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --p:#1d4ed8; --pd:#1e3a8a; --pl:#3b82f6; --pg:rgba(29,78,216,.13);
+  --ac:#0ea5e9; --ok:#10b981; --er:#ef4444; --wa:#f59e0b;
+  --bg:#f0f4f8; --bg2:#e2e8f0; --card:#fff; --bd:#e2e8f0;
+  --tx:#0f172a; --txm:#64748b; --txl:#94a3b8;
+  --s1:0 1px 4px rgba(0,0,0,.07);
+  --s2:0 4px 14px rgba(0,0,0,.1);
+  --s3:0 14px 36px rgba(0,0,0,.14);
+  --r1:8px; --r2:14px; --r3:20px;
+  --tr:.22s cubic-bezier(.4,0,.2,1);
+}
+[data-dk]{
+  --bg:#0f172a; --bg2:#1e293b; --card:#1e293b; --bd:#334155;
+  --tx:#f1f5f9; --txm:#94a3b8; --txl:#475569;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:17px;scroll-behavior:smooth}
+body{font-family:'Tajawal',system-ui,sans-serif;background:var(--bg);color:var(--tx);
+  direction:rtl;min-height:100vh;transition:background .3s,color .3s}
+
+/* ── شاشة كلمة السر ───────────────────────────── */
+.pwd-overlay{position:fixed;inset:0;background:linear-gradient(135deg,#0f2460,#1d4ed8 55%,#0ea5e9);
+  z-index:9999;display:flex;align-items:center;justify-content:center;
+  transition:opacity .5s ease}
+.pwd-overlay.hide{opacity:0;pointer-events:none}
+.pwd-box{background:#fff;border-radius:24px;padding:40px 32px;text-align:center;
+  width:90%;max-width:380px;box-shadow:0 24px 60px rgba(0,0,0,.3);
+  animation:su .4s cubic-bezier(.34,1.56,.64,1)}
+.pwd-ico{font-size:52px;margin-bottom:14px}
+.pwd-title{font-size:1.2rem;font-weight:900;color:#1d4ed8;margin-bottom:4px}
+.pwd-sub{font-size:.78rem;color:#64748b;margin-bottom:20px}
+.pwd-input{width:100%;padding:14px 18px;border:2px solid #e2e8f0;border-radius:14px;
+  font-size:22px;font-family:'Tajawal',sans-serif;text-align:center;
+  letter-spacing:6px;outline:none;background:#f0f4f8;color:#0f172a;
+  transition:.22s cubic-bezier(.4,0,.2,1)}
+.pwd-input:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(29,78,216,.13)}
+.pwd-input.shake{animation:shk .4s ease}
+.pwd-btn{width:100%;margin-top:16px;padding:13px;background:linear-gradient(135deg,#1d4ed8,#0ea5e9);
+  color:#fff;border:none;border-radius:14px;font-size:.95rem;font-family:'Tajawal',sans-serif;
+  font-weight:700;cursor:pointer;transition:.22s}
+.pwd-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(29,78,216,.35)}
+.pwd-err{color:#ef4444;font-size:.78rem;font-weight:600;margin-top:10px;min-height:20px}
+@keyframes shk{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}
+  40%{transform:translateX(10px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+
+/* ── Header ─────────────── */
+.hdr{background:linear-gradient(135deg,#0f2460,#1d4ed8 55%,#0ea5e9);
+  color:#fff;position:sticky;top:0;z-index:90;
+  box-shadow:0 4px 20px rgba(29,78,216,.42)}
+.hdr-in{max-width:860px;margin:0 auto;padding:14px 18px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px}
+.hbrand{display:flex;align-items:center;gap:12px}
+.hico{width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.15);
+  border:2px solid rgba(255,255,255,.3);display:flex;align-items:center;
+  justify-content:center;font-size:24px;flex-shrink:0}
+.horg{font-size:1.1rem;font-weight:900}
+.hsub{font-size:.7rem;opacity:.8;margin-top:1px}
+.hbtns{display:flex;gap:7px}
+.hbtn{width:36px;height:36px;border-radius:9px;background:rgba(255,255,255,.15);
+  border:1px solid rgba(255,255,255,.25);color:#fff;font-size:17px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:var(--tr)}
+.hbtn:hover{background:rgba(255,255,255,.28);transform:translateY(-1px)}
+.hbtn:disabled{opacity:.38;cursor:default;transform:none}
+
+/* ── Wrap ────────────────── */
+.wrap{max-width:860px;margin:0 auto;padding:0 14px 70px}
+
+/* ── Stats ───────────────── */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0 14px}
+.sc{background:var(--card);border:1px solid var(--bd);border-radius:var(--r2);
+  padding:13px 14px;text-align:center;box-shadow:var(--s1);transition:var(--tr)}
+.sc:hover{transform:translateY(-2px);box-shadow:var(--s2)}
+.sv{font-size:1.65rem;font-weight:900;color:var(--p);direction:ltr}
+.sl{font-size:.66rem;color:var(--txm);font-weight:600;margin-top:3px}
+
+/* ── Search box ──────────── */
+.scard{background:var(--card);border:1px solid var(--bd);border-radius:var(--r3);
+  padding:18px;box-shadow:var(--s2);margin-bottom:14px}
+.slbl{font-size:.7rem;font-weight:700;color:var(--txm);letter-spacing:.6px;
+  text-transform:uppercase;margin-bottom:9px;display:flex;align-items:center;gap:5px}
+.sinp-w{position:relative}
+.sinp{width:100%;padding:13px 46px 13px 48px;border:2px solid var(--bd);
+  border-radius:var(--r2);font-size:15px;font-family:inherit;background:var(--bg);
+  color:var(--tx);outline:none;transition:var(--tr)}
+.sinp:focus{border-color:var(--pl);background:var(--card);box-shadow:0 0 0 3px var(--pg)}
+.sinp:disabled{opacity:.4;cursor:not-allowed}
+.sinp::placeholder{color:var(--txl)}
+.sico{position:absolute;right:14px;top:50%;transform:translateY(-50%);
+  font-size:17px;pointer-events:none}
+.sclr{position:absolute;left:10px;top:50%;transform:translateY(-50%);
+  background:var(--bg2);border:none;border-radius:6px;padding:4px 9px;
+  font-size:.7rem;font-family:inherit;color:var(--txm);cursor:pointer;
+  transition:var(--tr);display:none}
+.sclr:hover{background:var(--er);color:#fff}
+.sclr.vis{display:block}
+
+/* ── شارة البحث الذكي ───── */
+.aitag{display:inline-flex;align-items:center;gap:4px;margin-right:6px;
+  background:linear-gradient(135deg,#7c3aed,#0ea5e9);color:#fff;
+  padding:2px 8px;border-radius:10px;font-size:.6rem;font-weight:800;
+  letter-spacing:.5px}
+
+/* ── Progress ────────────── */
+.prog{height:3px;background:var(--bd);border-radius:2px;
+  margin-top:11px;overflow:hidden;display:none}
+.prog.on{display:block}
+.pfill{height:100%;background:linear-gradient(90deg,var(--p),var(--ac));
+  animation:pg 2s ease infinite}
+@keyframes pg{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
+
+/* ── Status strip ────────── */
+.sts{margin-top:12px;padding:11px 14px;border-radius:var(--r1);font-size:.79rem;
+  font-weight:600;display:flex;align-items:flex-start;gap:9px;line-height:1.55}
+.sts.ld{background:#fef9c3;color:#78350f;border:1px solid #fde68a}
+.sts.ok{background:#dcfce7;color:#14532d;border:1px solid #bbf7d0}
+.sts.er{background:#fee2e2;color:#7f1d1d;border:1px solid #fecaca}
+.sts.wn{background:#fff7ed;color:#9a3412;border:1px solid #fed7aa}
+[data-dk] .sts.ld{background:#451a03;color:#fcd34d;border-color:#78350f}
+[data-dk] .sts.ok{background:#052e16;color:#86efac;border-color:#14532d}
+[data-dk] .sts.er{background:#450a0a;color:#fca5a5;border-color:#7f1d1d}
+[data-dk] .sts.wn{background:#431407;color:#fdba74;border-color:#9a3412}
+.sdot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.ld .sdot{background:var(--wa);animation:bk 1s infinite}
+.ok .sdot{background:var(--ok)}
+.er .sdot{background:var(--er)}
+.wn .sdot{background:var(--wa)}
+@keyframes bk{0%,100%{opacity:1}50%{opacity:.25}}
+
+.rtrybtn{margin-top:10px;padding:8px 18px;background:var(--p);color:#fff;border:none;
+  border-radius:var(--r1);font-size:.79rem;font-family:inherit;font-weight:700;
+  cursor:pointer;transition:var(--tr);display:none;align-items:center;gap:6px}
+.rtrybtn:hover{background:var(--pd)}
+.rtrybtn.vis{display:inline-flex}
+
+/* ── Filters row ─────────── */
+.frow{display:none;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.frow.vis{display:flex}
+.fmeta{flex:1;font-size:.77rem;color:var(--txm)}
+.fmeta b{color:var(--p)}
+.fsort{padding:7px 11px;border:1.5px solid var(--bd);border-radius:var(--r1);
+  background:var(--card);color:var(--tx);font-size:.77rem;font-family:inherit;
+  cursor:pointer;outline:none}
+.fvt{display:flex;background:var(--bg2);border-radius:var(--r1);padding:3px}
+.fvb{padding:5px 10px;border:none;border-radius:6px;cursor:pointer;
+  background:transparent;color:var(--txm);font-size:14px;transition:var(--tr)}
+.fvb.on{background:var(--card);color:var(--p);box-shadow:var(--s1)}
+
+/* ── Action bar ──────────── */
+.abar{display:none;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.abar.vis{display:flex}
+.abtn{padding:7px 14px;border:1.5px solid var(--bd);border-radius:var(--r1);
+  background:var(--card);color:var(--tx);font-size:.75rem;font-family:inherit;
+  cursor:pointer;font-weight:700;transition:var(--tr);
+  display:flex;align-items:center;gap:5px}
+.abtn:hover{border-color:var(--p);color:var(--p);background:var(--pg)}
+
+/* ── Employee cards ──────── */
+.grid{display:flex;flex-direction:column;gap:11px}
+.grid.g2{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}
+@media(max-width:540px){.grid.g2{grid-template-columns:1fr}}
+
+.ecard{background:var(--card);border:1px solid var(--bd);border-radius:var(--r3);
+  overflow:hidden;box-shadow:var(--s1);transition:var(--tr);cursor:pointer;
+  animation:su .32s cubic-bezier(.34,1.56,.64,1) both}
+.ecard:hover{box-shadow:var(--s3);transform:translateY(-3px);border-color:var(--pl)}
+.ecard:focus{outline:2px solid var(--p);outline-offset:2px}
+.ecard:nth-child(1){animation-delay:.03s}
+.ecard:nth-child(2){animation-delay:.06s}
+.ecard:nth-child(3){animation-delay:.09s}
+.ecard:nth-child(n+4){animation-delay:.12s}
+@keyframes su{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+.chead{background:linear-gradient(135deg,var(--pd),var(--p));
+  padding:14px 16px;display:flex;align-items:center;gap:12px}
+.cavt{width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.2);
+  border:2px solid rgba(255,255,255,.35);display:flex;align-items:center;
+  justify-content:center;font-size:20px;font-weight:700;color:#fff;flex-shrink:0}
+.cid{flex:1;min-width:0}
+.cname{font-size:.94rem;font-weight:700;color:#fff;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cbdg{display:inline-flex;align-items:center;gap:4px;
+  background:rgba(255,255,255,.2);border-radius:20px;
+  padding:2px 10px;font-size:.67rem;color:rgba(255,255,255,.9);margin-top:3px}
+.caico{color:rgba(255,255,255,.6);font-size:18px;transition:transform .3s;flex-shrink:0}
+.ecard.op .caico{transform:rotate(180deg)}
+
+.cbody{padding:14px 16px}
+.fg{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+@media(max-width:360px){.fg{grid-template-columns:1fr}}
+.fi{background:var(--bg);border:1px solid var(--bd);border-radius:var(--r1);
+  padding:9px 11px;transition:var(--tr)}
+.fi:hover{border-color:var(--pl)}
+.fil{font-size:.6rem;color:var(--txm);font-weight:700;margin-bottom:3px}
+.fiv{font-size:.83rem;font-weight:700;color:var(--tx);word-break:break-word}
+.fiv.mt{color:var(--txl);font-weight:400}
+
+.xdv{border:none;border-top:1.5px dashed var(--bd);margin:11px 0 9px}
+.xbtn{width:100%;padding:8px;background:var(--bg);border:1.5px dashed var(--bd);
+  border-radius:var(--r1);color:var(--txm);font-size:.73rem;font-family:inherit;
+  cursor:pointer;font-weight:700;margin-top:8px;
+  display:flex;align-items:center;justify-content:center;gap:5px;transition:var(--tr)}
+.xbtn:hover{background:var(--pg);border-color:var(--p);color:var(--p)}
+.grid.g2 .fg{grid-template-columns:1fr}
+
+/* ── زر تحميل المزيد ─────── */
+.morebtn{margin:14px auto 0;display:block;padding:12px 28px;
+  background:linear-gradient(135deg,var(--p),var(--ac));color:#fff;
+  border:none;border-radius:var(--r2);font-size:.85rem;font-family:inherit;
+  font-weight:800;cursor:pointer;box-shadow:var(--s2);transition:var(--tr)}
+.morebtn:hover{transform:translateY(-2px);box-shadow:var(--s3)}
+
+/* ── Empty state ─────────── */
+.empty{text-align:center;padding:50px 20px;color:var(--txm);animation:fi .3s ease}
+.empty .ei{font-size:52px;opacity:.4;margin-bottom:14px}
+.empty h3{font-size:1.05rem;font-weight:800;margin-bottom:6px}
+.empty p{font-size:.8rem;line-height:1.6}
+@keyframes fi{from{opacity:0}to{opacity:1}}
+
+mark{background:#fef08a;color:#713f12;border-radius:3px;padding:0 2px}
+[data-dk] mark{background:#854d0e;color:#fef08a}
+
+/* ── Footer ──────────────── */
+.ftr{text-align:center;padding:28px 14px 8px;color:var(--txl);font-size:.7rem;line-height:1.9}
+.ftr b{color:var(--txm)}
+
+/* ── Modal ───────────────── */
+.mov{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(5px);
+  z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;
+  opacity:0;pointer-events:none;transition:opacity .22s}
+.mov.on{opacity:1;pointer-events:all}
+.mbox{background:var(--card);border-radius:24px;width:100%;max-width:580px;
+  max-height:92vh;overflow-y:auto;scrollbar-width:thin;
+  box-shadow:0 24px 60px rgba(0,0,0,.26);
+  transform:scale(.9) translateY(16px);
+  transition:transform .28s cubic-bezier(.34,1.56,.64,1)}
+.mov.on .mbox{transform:scale(1) translateY(0)}
+.mhdr{background:linear-gradient(135deg,var(--pd),var(--p));padding:18px 20px;
+  display:flex;align-items:center;gap:12px;
+  border-radius:24px 24px 0 0;position:sticky;top:0}
+.mavt{width:54px;height:54px;border-radius:50%;background:rgba(255,255,255,.2);
+  border:3px solid rgba(255,255,255,.35);display:flex;align-items:center;
+  justify-content:center;font-size:23px;font-weight:700;color:#fff;flex-shrink:0}
+.mtw{flex:1}
+.mname{font-size:1.1rem;font-weight:800;color:#fff}
+.msub{font-size:.72rem;color:rgba(255,255,255,.8);margin-top:2px}
+.mcls{width:34px;height:34px;background:rgba(255,255,255,.15);
+  border:1px solid rgba(255,255,255,.28);border-radius:9px;color:#fff;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:20px;transition:var(--tr);flex-shrink:0}
+.mcls:hover{background:rgba(255,255,255,.28)}
+.mbody{padding:20px 22px}
+.msec{font-size:.64rem;font-weight:800;color:var(--p);letter-spacing:1px;
+  text-transform:uppercase;margin-bottom:10px;padding-bottom:7px;
+  border-bottom:2px solid var(--pg)}
+.mfg{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-bottom:18px}
+@media(max-width:360px){.mfg{grid-template-columns:1fr}}
+.mfi{background:var(--bg);border:1px solid var(--bd);border-radius:var(--r1);padding:11px 13px}
+.mfl{font-size:.6rem;color:var(--txm);font-weight:700;margin-bottom:3px}
+.mfv{font-size:.85rem;font-weight:700;color:var(--tx);word-break:break-word}
+.mfv.mt{color:var(--txl);font-weight:400;font-style:italic}
+.mpbtn{width:100%;padding:11px;background:var(--p);color:#fff;border:none;
+  border-radius:var(--r2);font-size:.85rem;font-family:inherit;font-weight:700;
+  cursor:pointer;transition:var(--tr);display:flex;align-items:center;justify-content:center;gap:7px}
+.mpbtn:hover{background:var(--pd)}
+
+@media print{
+  .hdr,.stats,.scard,.frow,.abar,.ftr,.mov,.xbtn,.morebtn{display:none!important}
+  body{background:#fff;color:#000}
+  .ecard{break-inside:avoid;box-shadow:none;border:1px solid #ccc;margin-bottom:12px}
+  .chead{background:#1d4ed8!important;-webkit-print-color-adjust:exact}
+}
+@media(max-width:600px){
+  .hsub{display:none}
+  .sv{font-size:1.4rem}
+  .sinp{font-size:14px}
+}
+</style>
+</head>
+<body>
+
+<!-- ─── شاشة كلمة السر ──────────────────────────── -->
+<div class="pwd-overlay" id="pwdOverlay">
+  <div class="pwd-box">
+    <div class="pwd-ico">🔐</div>
+    <div class="pwd-title">مديرية غاز الجنوب</div>
+    <div class="pwd-sub">أدخل كلمة المرور للدخول إلى النظام</div>
+    <input class="pwd-input" id="pwdInput" type="password"
+      placeholder="••••••" maxlength="20"
+      onkeydown="if(event.key==='Enter')checkPwd()" autofocus>
+    <button class="pwd-btn" onclick="checkPwd()">🔓 دخول</button>
+    <div class="pwd-err" id="pwdErr"></div>
+  </div>
+</div>
+
+<!-- ── ـ Header ──────────────────────────────────── -->
+<header class="hdr">
+  <div class="hdr-in">
+    <div class="hbrand">
+      <div class="hico">🏭</div>
+      <div>
+        <div class="horg">مديرية غاز الجنوب</div>
+        <div class="hsub">نظام الاستعلام عن الموظفين</div>
+      </div>
+    </div>
+    <div class="hbtns">
+      <button class="hbtn" id="btnDk"  title="وضع مظلم"  onclick="toggleDk()">🌙</button>
+      <button class="hbtn" id="btnRef" title="تحديث"     onclick="doRef()" disabled>🔄</button>
+      <button class="hbtn"             title="طباعة"     onclick="window.print()">🖨️</button>
+    </div>
+  </div>
+</header>
+
+<!-- ─── Body ─────────────────────────────────────── -->
+<div class="wrap">
+
+  <!-- إحصائيات -->
+  <div class="stats">
+    <div class="sc"><div class="sv" id="stTotal">—</div><div class="sl">إجمالي الموظفين</div></div>
+    <div class="sc"><div class="sv" id="stShown">—</div><div class="sl">نتائج البحث</div></div>
+    <div class="sc"><div class="sv" id="stCols">—</div> <div class="sl">حقول البيانات</div></div>
+  </div>
+
+  <!-- مربع البحث -->
+  <div class="scard">
+    <div class="slbl">
+      <span class="aitag">✦ AI</span>
+      🔍 البحث الذكي — جميع النتائج
+    </div>
+    <div class="sinp-w">
+      <span class="sico">🔍</span>
+      <input class="sinp" id="sinp" type="search"
+        placeholder="ابحث بأي معلومة... (يفهم الأخطاء الإملائية والاختصارات)"
+        oninput="onSrch()" onkeydown="onKey(event)"
+        disabled autocomplete="off" spellcheck="false">
+      <button class="sclr" id="sclr" onclick="clrSrch()">✕ مسح</button>
+    </div>
+    <div class="prog on" id="prog"><div class="pfill"></div></div>
+    <div class="sts ld" id="sts">
+      <span class="sdot"></span>
+      <span id="stxt">⏳ جاري الاتصال بقاعدة البيانات...</span>
+    </div>
+    <button class="rtrybtn" id="rtrybtn" onclick="startLoad()">🔄 إعادة المحاولة</button>
+  </div>
+
+  <!-- فلاتر -->
+  <div class="frow" id="frow">
+    <div class="fmeta" id="fmeta"></div>
+    <select class="fsort" id="fsort" onchange="reRender()">
+      <option value="">الترتيب الذكي (الأكثر صلة)</option>
+      <option value="az">الاسم أ ← ي</option>
+      <option value="za">الاسم ي ← أ</option>
+    </select>
+    <div class="fvt">
+      <button class="fvb on" id="vl" onclick="setView('l')" title="قائمة">☰</button>
+      <button class="fvb"    id="vg" onclick="setView('g')" title="شبكة">⊞</button>
+    </div>
+  </div>
+
+  <!-- أزرار توسيع -->
+  <div class="abar" id="abar">
+    <button class="abtn" onclick="expAll()">⬇️ توسيع الكل</button>
+    <button class="abtn" onclick="colAll()">⬆️ طي الكل</button>
+  </div>
+
+  <!-- منطقة النتائج -->
+  <div class="grid" id="garea"></div>
+</div>
+
+<!-- ─── Footer ───────────────────────────────────── -->
+<div class="ftr">
+  تصميم وتطوير: <b>William Alhasan</b><br>
+  © 2026<br>
+  <span style="font-size:.63rem"></span>
+</div>
+
+<!-- ─── Modal ─────────────────────────────────────── -->
+<div class="mov" id="mov" onclick="movClick(event)">
+  <div class="mbox">
+    <div class="mhdr">
+      <div class="mavt" id="mavt">؟</div>
+      <div class="mtw">
+        <div class="mname" id="mname">—</div>
+        <div class="msub"  id="msub">—</div>
+      </div>
+      <button class="mcls" onclick="closeMov()">✕</button>
+    </div>
+    <div class="mbody" id="mbody"></div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   كلمة السر
+═══════════════════════════════════════════════════ */
+var APP_PASSWORD = "2026"; // ← غيّر كلمة السر هنا
+
+(function () {
+  if (sessionStorage.getItem('pwd_ok') === '1') {
+    document.getElementById('pwdOverlay').style.display = 'none';
+  }
+})();
+
+function checkPwd() {
+  var inp = document.getElementById('pwdInput');
+  var val = inp.value.trim();
+  if (val === APP_PASSWORD) {
+    var ov = document.getElementById('pwdOverlay');
+    ov.classList.add('hide');
+    setTimeout(function () { ov.style.display = 'none'; }, 500);
+    sessionStorage.setItem('pwd_ok', '1');
+  } else {
+    document.getElementById('pwdErr').textContent = '❌ كلمة المرور غير صحيحة';
+    inp.classList.add('shake');
+    inp.value = '';
+    inp.focus();
+    setTimeout(function () { inp.classList.remove('shake'); }, 400);
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   الحالة العامة
+═══════════════════════════════════════════════════ */
+var DB  = [];   // [{ri, v:[], _norm}]
+var HDR = [];   // أسماء الأعمدة
+var FLT = [];   // نتائج البحث (مرتبة بالصلة)
+var QRY = '';
+var VW  = 'l';
+var FOC = -1;
+var TMR = null;
+var PAGE_SIZE = 30;   // عدد البطاقات المعروضة في كل دفعة
+var SHOWN = 0;        // عدد البطاقات المرسومة حالياً
+
+/* ═══════════════════════════════════════════════════
+   التشغيل
+═══════════════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', function () {
+  initDk();
+  startLoad();
+});
+
+/* ─── بدء التحميل ─────────────────────────────── */
+function startLoad() {
+  DB  = []; HDR = []; FLT = [];
+  G('garea').innerHTML = '';
+  vis('frow', false); vis('abar', false);
+  G('sinp').disabled   = true;
+  G('btnRef').disabled = true;
+  G('rtrybtn').classList.remove('vis');
+  G('prog').classList.add('on');
+  setSts('ld', '⏳ الخطوة 1/2 — اختبار الاتصال...');
+  clearTmr();
+
+  TMR = setTimeout(function () {
+    G('prog').classList.remove('on');
+    setSts('er',
+      '❌ انتهت المهلة (30 ثانية) بلا استجابة.\n\n' +
+      'تحقق من:\n' +
+      '١- منح الصلاحيات عند أول تشغيل (Run → Review permissions)\n' +
+      '٢- نشر السكريبت كـ Web App (Deploy → New deployment)\n' +
+      '٣- صحة الـ Spreadsheet ID في Code.gs'
+    );
+    G('rtrybtn').classList.add('vis');
+  }, 30000);
+
+  google.script.run
+    .withSuccessHandler(function (r) {
+      if (!r || !r.ok) { onErr({ message: 'ping فشل — تأكد من الصلاحيات' }); return; }
+      setSts('ld', '✔ الاتصال ناجح — الخطوة 2/2: تحميل البيانات...');
+      google.script.run
+        .withSuccessHandler(onLoad)
+        .withFailureHandler(onErr)
+        .getAllData();
+    })
+    .withFailureHandler(onErr)
+    .ping();
+}
+
+/* ─── تحديث (مع مسح كاش) ─────────────────────── */
+function doRef() {
+  DB  = []; HDR = []; FLT = [];
+  G('garea').innerHTML = '';
+  vis('frow', false); vis('abar', false);
+  G('sinp').disabled   = true;
+  G('btnRef').disabled = true;
+  G('rtrybtn').classList.remove('vis');
+  G('prog').classList.add('on');
+  setSts('ld', '⏳ جاري تحديث البيانات...');
+  clearTmr();
+  TMR = setTimeout(function () {
+    G('prog').classList.remove('on');
+    setSts('er', '❌ انتهت المهلة أثناء التحديث. حاول مرة أخرى.');
+    G('rtrybtn').classList.add('vis');
+    G('btnRef').disabled = false;
+  }, 30000);
+  google.script.run
+    .withSuccessHandler(onLoad)
+    .withFailureHandler(onErr)
+    .refreshData();
+}
+
+/* ─── استقبال البيانات ────────────────────────── */
+function onLoad(r) {
+  clearTmr();
+  G('prog').classList.remove('on');
+  G('rtrybtn').classList.remove('vis');
+
+  if (!r || !r.ok) {
+    setSts('er', '❌ ' + ((r && r.error) ? r.error : 'خطأ غير معروف'));
+    G('rtrybtn').classList.add('vis');
+    return;
+  }
+
+  DB  = r.rows    || [];
+  HDR = r.headers || [];
+
+  // ✦ تحضير نسخة موحّدة (مُنظَّفة) لكل صف لتسريع البحث الذكي
+  for (var i = 0; i < DB.length; i++) {
+    DB[i]._norm = arNorm((DB[i].v || []).join(' '));
+  }
+
+  if (!DB.length) {
+    setSts('wn', '⚠️ لا توجد بيانات في جدول البيانات.');
+    return;
+  }
+
+  setSts('ok', '✅ جاهز — ' + DB.length.toLocaleString('ar') + ' موظف' +
+    (r.fromCache ? ' (كاش)' : ''));
+
+  G('sinp').disabled   = false;
+  G('btnRef').disabled = false;
+  G('stTotal').textContent = DB.length.toLocaleString('ar');
+  G('stShown').textContent = '0';
+  G('stCols').textContent  = HDR.length;
+
+  setTimeout(function () { G('sinp').focus(); }, 150);
+}
+
+/* ─── خطأ اتصال ───────────────────────────────── */
+function onErr(e) {
+  clearTmr();
+  G('prog').classList.remove('on');
+  setSts('er', '❌ ' + (e ? (e.message || String(e)) : 'خطأ غير محدد'));
+  G('rtrybtn').classList.add('vis');
+  G('btnRef').disabled = false;
+}
+
+function clearTmr() { if (TMR) { clearTimeout(TMR); TMR = null; } }
+
+/* ═══════════════════════════════════════════════════
+   ✦ البحث الذكي (AI-like Smart Search)
+   • توحيد الحروف العربية (همزات/ألف/ياء/تاء مربوطة)
+   • إزالة التشكيل والتطويل
+   • تطابق متعدد الكلمات (كل الكلمات يجب أن تتواجد)
+   • تطابق جزئي + بداية الكلمة
+   • تسامح مع الأخطاء الإملائية (Levenshtein)
+   • ترتيب النتائج حسب درجة الصلة
+═══════════════════════════════════════════════════ */
+
+/* توحيد النص العربي */
+function arNorm(s) {
+  if (s === null || s === undefined) return '';
+  s = String(s).toLowerCase();
+  // إزالة التشكيل
+  s = s.replace(/[\u064B-\u0652\u0670\u0640]/g, '');
+  // توحيد الألف
+  s = s.replace(/[\u0622\u0623\u0625]/g, '\u0627');
+  // الياء
+  s = s.replace(/\u0649/g, '\u064A');
+  // التاء المربوطة
+  s = s.replace(/\u0629/g, '\u0647');
+  // الهمزات المنفردة
+  s = s.replace(/[\u0624\u0626]/g, '');
+  // الأرقام العربية → إنجليزية
+  s = s.replace(/[\u0660-\u0669]/g, function (d) {
+    return String.fromCharCode(d.charCodeAt(0) - 0x0660 + 48);
+  });
+  // إزالة الرموز غير الضرورية وتوحيد المسافات
+  s = s.replace(/[^\w\u0621-\u064A\s]/g, ' ').replace(/\s+/g, ' ').trim();
+  return s;
+}
+
+/* مسافة Levenshtein (للتسامح مع الأخطاء الإملائية) */
+function lev(a, b) {
+  if (a === b) return 0;
+  if (!a.length) return b.length;
+  if (!b.length) return a.length;
+  var prev = [], curr = [], i, j;
+  for (j = 0; j <= b.length; j++) prev[j] = j;
+  for (i = 1; i <= a.length; i++) {
+    curr[0] = i;
+    for (j = 1; j <= b.length; j++) {
+      var cost = a.charAt(i - 1) === b.charAt(j - 1) ? 0 : 1;
+      curr[j] = Math.min(curr[j - 1] + 1, prev[j] + 1, prev[j - 1] + cost);
+    }
+    for (j = 0; j <= b.length; j++) prev[j] = curr[j];
+  }
+  return curr[b.length];
+}
+
+/* فحص الكلمة داخل النص بـ "ذكاء":
+   يُرجع درجة (score) — أعلى = أفضل، 0 = لا تطابق */
+function scoreToken(blob, blobWords, term) {
+  if (!term) return 0;
+  // تطابق تام لكلمة كاملة
+  for (var i = 0; i < blobWords.length; i++) {
+    if (blobWords[i] === term) return 100;
+  }
+  // بداية الكلمة
+  for (var k = 0; k < blobWords.length; k++) {
+    if (blobWords[k].indexOf(term) === 0) return 70;
+  }
+  // تطابق جزئي في أي مكان
+  if (blob.indexOf(term) !== -1) return 45;
+  // تسامح مع الأخطاء الإملائية (للكلمات بطول 4+ فقط)
+  if (term.length >= 4) {
+    var maxDist = term.length <= 5 ? 1 : 2;
+    for (var w = 0; w < blobWords.length; w++) {
+      var word = blobWords[w];
+      if (Math.abs(word.length - term.length) > maxDist) continue;
+      var d = lev(word, term);
+      if (d <= maxDist) {
+        return Math.max(20, 40 - d * 8);
+      }
+    }
+  }
+  return 0;
+}
+
+function smartSearch(query) {
+  var nq = arNorm(query);
+  if (!nq) return [];
+  var terms = nq.split(/\s+/).filter(Boolean);
+  if (!terms.length) return [];
+
+  var results = [];
+  for (var i = 0; i < DB.length; i++) {
+    var emp = DB[i];
+    var blob = emp._norm || '';
+    if (!blob) continue;
+    var blobWords = blob.split(/\s+/);
+
+    var totalScore = 0;
+    var allMatched = true;
+    for (var t = 0; t < terms.length; t++) {
+      var s = scoreToken(blob, blobWords, terms[t]);
+      if (s === 0) { allMatched = false; break; }
+      totalScore += s;
+    }
+    if (!allMatched) continue;
+
+    // مكافأة للتطابق في بداية الاسم (العمود الأول)
+    var firstName = arNorm((emp.v && emp.v[0]) || '');
+    if (firstName.indexOf(terms[0]) === 0) totalScore += 25;
+
+    results.push({ emp: emp, score: totalScore });
+  }
+
+  // ترتيب حسب الأعلى صلة
+  results.sort(function (a, b) { return b.score - a.score; });
+  return results.map(function (r) { return r.emp; });
+}
+
+/* ═══════════════════════════════════════════════════
+   تشغيل البحث
+═══════════════════════════════════════════════════ */
+var SRCH_DEBOUNCE = null;
+function onSrch() {
+  QRY = G('sinp').value.trim();
+  G('sclr').classList.toggle('vis', QRY.length > 0);
+
+  // إلغاء أي بحث سابق منتظر
+  if (SRCH_DEBOUNCE) clearTimeout(SRCH_DEBOUNCE);
+
+  if (QRY.length < 2) {
+    G('garea').innerHTML = '';
+    vis('frow', false); vis('abar', false);
+    G('stShown').textContent = '—';
+    FLT = []; FOC = -1;
+    return;
+  }
+
+  // debounce بسيط لتفادي الحساب المكثف عند الكتابة السريعة
+  SRCH_DEBOUNCE = setTimeout(function () {
+    FLT = smartSearch(QRY);
+    FOC = -1;
+    reRender();
+  }, 60);
+}
+
+function reRender() {
+  var s = G('fsort').value;
+  var d = FLT.slice();
+  if (s === 'az' || s === 'za') {
+    d.sort(function (a, b) {
+      var na = (a.v[0] || '').replace(/^-+$/, '');
+      var nb = (b.v[0] || '').replace(/^-+$/, '');
+      return s === 'az' ? na.localeCompare(nb, 'ar') : nb.localeCompare(na, 'ar');
+    });
+  }
+  drawList(d);
+}
+
+/* ═══════════════════════════════════════════════════
+   الرسم — يعرض الكل (بدون حد 20) بدفعات لأداء سلس
+═══════════════════════════════════════════════════ */
+var CURRENT_LIST = [];
+
+function drawList(list) {
+  var area = G('garea');
+  CURRENT_LIST = list;
+  G('stShown').textContent = list.length.toLocaleString('ar');
+
+  if (!list.length) {
+    area.innerHTML =
+      '<div class="empty"><div class="ei">🔍</div>' +
+      '<h3>لا توجد نتائج مطابـة</h3>' +
+      '<p>جرّب كلمات مختلفة — البحث الذكي يفهم الأخطاء الإملائية والاختصارات</p></div>';
+    vis('frow', false); vis('abar', false);
+    return;
+  }
+
+  G('fmeta').innerHTML =
+    '🎯 <b>' + list.length.toLocaleString('ar') + '</b> نتيجة مطابقة' +
+    ' <span style="opacity:.7">(مرتبة حسب الأكثر صلة)</span>';
+  vis('frow', true);
+  vis('abar', list.length > 1);
+  area.className = 'grid' + (VW === 'g' ? ' g2' : '');
+
+  // ابدأ بأول دفعة، ثم أضِف زر "تحميل المزيد" أو حمّل تلقائياً
+  SHOWN = 0;
+  area.innerHTML = '';
+  appendBatch();
+}
+
+function appendBatch() {
+  var area = G('garea');
+  var end  = Math.min(SHOWN + PAGE_SIZE, CURRENT_LIST.length);
+  var html = '';
+  for (var i = SHOWN; i < end; i++) {
+    html += mkCard(CURRENT_LIST[i], i);
+  }
+  // إزالة زر "تحميل المزيد" القديم إن وُجد
+  var oldBtn = document.getElementById('moreBtn');
+  if (oldBtn) oldBtn.remove();
+
+  // إضافة البطاقات الجديدة
+  area.insertAdjacentHTML('beforeend', html);
+  SHOWN = end;
+
+  // إضافة زر تحميل المزيد إذا تبقّى نتائج
+  if (SHOWN < CURRENT_LIST.length) {
+    var rem = CURRENT_LIST.length - SHOWN;
+    var btn = document.createElement('button');
+    btn.id = 'moreBtn';
+    btn.className = 'morebtn';
+    btn.textContent = '⬇️ عرض المزيد (' + rem.toLocaleString('ar') + ' متبقية)';
+    btn.onclick = appendBatch;
+    area.parentNode.insertBefore(btn, area.nextSibling);
+  }
+}
+
+/* ─── بناء البطاقة ────────────────────────────── */
+function mkCard(emp, idx) {
+  if (!emp.v || !emp.v.length) return '';
+
+  var n0  = emp.v[0] || '';
+  var n1  = emp.v[1] || '';
+  var av  = getAv(n0);
+  var cid = 'C' + idx;
+
+  var prev = '';
+  for (var i = 2; i < Math.min(6, HDR.length); i++) {
+    prev += mkFi(HDR[i], emp.v[i]);
+  }
+
+  var xc = Math.max(0, HDR.length - 6);
+  var xhtml = '';
+  if (xc > 0) {
+    var xf = '';
+    for (var j = 6; j < HDR.length; j++) { xf += mkFi(HDR[j], emp.v[j]); }
+    xhtml =
+      '<hr class="xdv">' +
+      '<div class="fg" id="X' + cid + '" style="display:none">' + xf + '</div>' +
+      '<button class="xbtn" onclick="togX(\'' + cid + '\')">' +
+        '<span id="I' + cid + '">⬇</span> جميع الحقول (' + xc + ')' +
+      '</button>';
+  }
+
+  return '<div class="ecard" id="' + cid + '" tabindex="0"' +
+    ' onclick="openMov(' + idx + ')"' +
+    ' onkeydown="if(event.key===\'Enter\')openMov(' + idx + ')">' +
+    '<div class="chead">' +
+      '<div class="cavt">' + esc(av) + '</div>' +
+      '<div class="cid">' +
+        '<div class="cname">' + hi(n0) + '</div>' +
+        (n1 ? '<div class="cbdg">🪪 ' + hi(n1) + '</div>' : '') +
+      '</div>' +
+      '<span class="caico">⌄</span>' +
+    '</div>' +
+    '<div class="cbody" onclick="event.stopPropagation()">' +
+      '<div class="fg">' + prev + '</div>' + xhtml +
+    '</div></div>';
+}
+
+function mkFi(lbl, val) {
+  var e = !val || val === '---' || val === '';
+  return '<div class="fi">' +
+    '<div class="fil">' + esc(lbl || '') + '</div>' +
+    '<div class="fiv' + (e ? ' mt' : '') + '">' + (e ? '—' : hi(val)) + '</div>' +
+    '</div>';
+}
+
+/* ═══════════════════════════════════════════════════
+   المودال — كل الحقول بالترتيب الصحيح
+═══════════════════════════════════════════════════ */
+function openMov(idx) {
+  var emp = CURRENT_LIST[idx] || FLT[idx];
+  if (!emp) return;
+
+  var n0 = emp.v[0] || '—';
+  var n1 = emp.v[1] || '';
+
+  G('mavt').textContent = getAv(n0);
+  G('mname').textContent = n0;
+  G('msub').textContent = (HDR[1] ? HDR[1] + ': ' : '') + (n1 && n1 !== '---' ? n1 : '—');
+
+  var html = '';
+  for (var i = 0; i < HDR.length; i++) {
+    var v = emp.v[i] || '';
+    var e = !v || v === '---';
+    html +=
+      '<div class="mfi">' +
+        '<div class="mfl">' + esc(HDR[i]) + '</div>' +
+        '<div class="mfv' + (e ? ' mt' : '') + '">' + (e ? '—' : esc(v)) + '</div>' +
+      '</div>';
+  }
+
+  G('mbody').innerHTML =
+    '<div class="msec">📋 بيانات الموظف الكاملة</div>' +
+    '<div class="mfg">' + html + '</div>' +
+    '<button class="mpbtn" onclick="prtEmp(' + idx + ')">🖨️ طباعة بيانات الموظف</button>';
+
+  G('mov').classList.add('on');
+  document.body.style.overflow = 'hidden';
+}
+
+function movClick(e) { if (e.target === G('mov')) closeMov(); }
+function closeMov()  { G('mov').classList.remove('on'); document.body.style.overflow = ''; }
+
+/* ═══════════════════════════════════════════════════
+   الطباعة
+═══════════════════════════════════════════════════ */
+function prtEmp(idx) {
+  var emp = CURRENT_LIST[idx] || FLT[idx];
+  if (!emp) return;
+  var rows = '';
+  for (var i = 0; i < HDR.length; i++) {
+    var v = emp.v[i] || '';
+    rows += '<tr>' +
+      '<td style="font-weight:700;background:#f1f5f9;padding:6px 10px;width:38%">' + esc(HDR[i]) + '</td>' +
+      '<td style="padding:6px 10px">' + esc(v && v !== '---' ? v : '—') + '</td>' +
+      '</tr>';
+  }
+  var w = window.open('', '_blank');
+  if (!w) return;
+  w.document.write(
+    '<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="UTF-8"><title>بيانات موظف</title>' +
+    '<style>body{font-family:Tajawal,sans-serif;padding:26px;direction:rtl;color:#000}' +
+    'h2{color:#1d4ed8;border-bottom:2px solid #1d4ed8;padding-bottom:8px;margin-bottom:14px}' +
+    'table{width:100%;border-collapse:collapse}td{border:1px solid #ddd;vertical-align:top}' +
+    'tr:nth-child(even)td{background:#f8fafc}' +
+    '.ft{text-align:center;margin-top:20px;font-size:11px;color:#64748b}</style></head><body>' +
+    '<h2>🏭 مديرية غاز الجنوب — بيانات الموظف</h2>' +
+    '<table>' + rows + '</table>' +
+    '<div class="ft">نظام شؤون الموظفين — ' + new Date().toLocaleDateString('ar-IQ') + '</div>' +
+    '<scr' + 'ipt>window.onload=function(){window.print();window.close()}<\/scr' + 'ipt>' +
+    '</body></html>'
+  );
+  w.document.close();
+}
+
+/* ═══════════════════════════════════════════════════
+   توسيع / طي
+═══════════════════════════════════════════════════ */
+function togX(cid) {
+  event.stopPropagation();
+  var x    = G('X' + cid);
+  var icon = G('I' + cid);
+  var card = G(cid);
+  var open = x.style.display !== 'none';
+  x.style.display  = open ? 'none' : 'grid';
+  icon.textContent = open ? '⬇' : '⬆';
+  card.classList.toggle('op', !open);
+}
+function expAll() {
+  document.querySelectorAll('[id^="X"]').forEach(function (e) { e.style.display = 'grid'; });
+  document.querySelectorAll('[id^="IC"]').forEach(function (e) { e.textContent = '⬆'; });
+  document.querySelectorAll('.ecard').forEach(function (c) { c.classList.add('op'); });
+}
+function colAll() {
+  document.querySelectorAll('[id^="X"]').forEach(function (e) { e.style.display = 'none'; });
+  document.querySelectorAll('[id^="IC"]').forEach(function (e) { e.textContent = '⬇'; });
+  document.querySelectorAll('.ecard').forEach(function (c) { c.classList.remove('op'); });
+}
+
+/* ═══════════════════════════════════════════════════
+   عرض / كيبورد / ثيم
+═══════════════════════════════════════════════════ */
+function setView(v) {
+  VW = v;
+  G('vl').classList.toggle('on', v === 'l');
+  G('vg').classList.toggle('on', v === 'g');
+  var a = G('garea');
+  if (v === 'g') a.classList.add('g2'); else a.classList.remove('g2');
+}
+
+function clrSrch() {
+  G('sinp').value = '';
+  G('sclr').classList.remove('vis');
+  onSrch();
+  G('sinp').focus();
+}
+
+function onKey(e) {
+  var cards = document.querySelectorAll('.ecard');
+  if (e.key === 'Escape') {
+    if (G('mov').classList.contains('on')) closeMov();
+    else clrSrch();
+    return;
+  }
+  if (!cards.length) return;
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    FOC = Math.min(FOC + 1, cards.length - 1);
+    cards[FOC].focus();
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (FOC <= 0) { FOC = -1; G('sinp').focus(); }
+    else { FOC--; cards[FOC].focus(); }
+  }
+}
+
+function toggleDk() {
+  var on = document.documentElement.hasAttribute('data-dk');
+  if (on) document.documentElement.removeAttribute('data-dk');
+  else    document.documentElement.setAttribute('data-dk', '');
+  G('btnDk').textContent = on ? '🌙' : '☀️';
+  localStorage.setItem('dk', on ? '0' : '1');
+}
+function initDk() {
+  var s = localStorage.getItem('dk');
+  var p = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  if (s ? s === '1' : p) {
+    document.documentElement.setAttribute('data-dk', '');
+    G('btnDk').textContent = '☀️';
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   مساعدات
+═══════════════════════════════════════════════════ */
+function G(id) { return document.getElementById(id); }
+
+function vis(eid, show) {
+  var el = G(eid);
+  if (!el) return;
+  if (show) el.classList.add('vis'); else el.classList.remove('vis');
+}
+
+function setSts(t, msg) {
+  G('sts').className = 'sts ' + t;
+  G('stxt').textContent = msg;
+}
+
+function getAv(name) {
+  if (!name || /^-*$/.test(name.trim())) return '؟';
+  var p = name.trim().split(/\s+/);
+  return p.length >= 2 ? p[0][0] + p[1][0] : (name[0] || '؟');
+}
+
+/* ✦ تظليل ذكي يحترم تطبيع النص العربي */
+function hi(text) {
+  if (!QRY || QRY.length < 2) return esc(text);
+  var r = esc(text);
+  var nq = arNorm(QRY);
+  if (!nq) return r;
+  nq.split(/\s+/).filter(Boolean).forEach(function (t) {
+    if (t.length < 1) return;
+    // نُظلّل كل تكرار للنص الخام يحتوي على الكلمة بعد التطبيع
+    try {
+      r = r.replace(new RegExp('(' + reesc(t) + ')', 'gi'), '<mark>$1</mark>');
+    } catch (e) {}
+  });
+  return r;
+}
+
+function esc(s) {
+  if (!s) return '';
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function reesc(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape' && G('mov').classList.contains('on')) closeMov();
+});
+</script>
+</body>
+</html>
