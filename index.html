@@ -2,695 +2,1119 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="theme-color" content="#1e40af">
     <title>حاسبة الضريبة على الرواتب</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
     <style>
+        /* ─── Reset & Base ─── */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
         :root {
-            --ink: #1e3a5f;
-            --paper: #f0f5fb;
-            --gold: #2563eb;
-            --gold-light: #bfdbfe;
-            --gold-dark: #1d4ed8;
-            --crimson: #dc2626;
-            --sage: #0f4c81;
-            --sage-light: #3b82f6;
-            --mist: #dbeafe;
-            --shadow: rgba(37,99,235,0.10);
+            --primary:        #1e40af;
+            --primary-dark:   #1e3a8a;
+            --primary-light:  #3b82f6;
+            --primary-glow:   rgba(59,130,246,0.18);
+            --accent:         #06b6d4;
+            --accent-light:   rgba(6,182,212,0.12);
+            --danger:         #ef4444;
+            --warn:           #f59e0b;
+            --success:        #10b981;
+            --bg:             #f0f4f8;
+            --surface:        #ffffff;
+            --surface-2:      #f8fafc;
+            --surface-3:      #eef2f7;
+            --border:         #e2e8f0;
+            --border-focus:   #3b82f6;
+            --text-1:         #0f172a;
+            --text-2:         #334155;
+            --text-3:         #64748b;
+            --text-4:         #94a3b8;
+            --shadow-sm:      0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md:      0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.05);
+            --shadow-lg:      0 10px 40px rgba(0,0,0,0.10), 0 4px 12px rgba(0,0,0,0.06);
+            --shadow-xl:      0 20px 60px rgba(0,0,0,0.12), 0 8px 20px rgba(0,0,0,0.07);
+            --radius-sm:      8px;
+            --radius-md:      14px;
+            --radius-lg:      20px;
+            --radius-xl:      28px;
+            --font-sans:      -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans Arabic',
+                              'Arabic UI Text', Tahoma, Arial, sans-serif;
+            --font-num:       'SF Mono', 'Cascadia Code', 'Courier New', Courier, monospace;
+            --transition:     all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
 
         body {
-            font-family: 'Cairo', sans-serif;
-            background-color: var(--paper);
-            color: var(--ink);
+            font-family: var(--font-sans);
+            background: var(--bg);
+            color: var(--text-1);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 20px;
-            position: relative;
+            padding: 0;
             overflow-x: hidden;
         }
 
-        /* Decorative background pattern */
+        /* ─── Background Decoration ─── */
         body::before {
             content: '';
             position: fixed;
             inset: 0;
-            background-image:
-                radial-gradient(circle at 15% 20%, rgba(37,99,235,0.08) 0%, transparent 50%),
-                radial-gradient(circle at 85% 80%, rgba(30,58,95,0.08) 0%, transparent 50%),
-                repeating-linear-gradient(
-                    45deg,
-                    transparent,
-                    transparent 40px,
-                    rgba(37,99,235,0.03) 40px,
-                    rgba(37,99,235,0.03) 41px
-                );
+            background:
+                radial-gradient(ellipse 800px 600px at 10% -10%, rgba(30,64,175,0.07) 0%, transparent 70%),
+                radial-gradient(ellipse 600px 500px at 90% 110%, rgba(6,182,212,0.06) 0%, transparent 70%),
+                radial-gradient(ellipse 400px 300px at 50% 50%, rgba(59,130,246,0.04) 0%, transparent 70%);
             pointer-events: none;
             z-index: 0;
         }
 
-        /* Corner ornaments */
-        body::after {
-            content: '';
-            position: fixed;
-            top: 20px; right: 20px;
-            width: 80px; height: 80px;
-            border-top: 2px solid #2563eb;
-            border-right: 2px solid #2563eb;
-            opacity: 0.4;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .corner-bottom {
-            position: fixed;
-            bottom: 20px; left: 20px;
-            width: 80px; height: 80px;
-            border-bottom: 2px solid #2563eb;
-            border-left: 2px solid #2563eb;
-            opacity: 0.4;
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        .wrapper {
+        /* ─── App Shell ─── */
+        .app-wrapper {
             position: relative;
             z-index: 1;
-            width: 100%;
-            max-width: 580px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
-        /* Header badge */
-        .header-badge {
-            text-align: center;
-            margin-bottom: 8px;
-            animation: fadeDown 0.6s ease both;
-        }
-
-        .header-badge span {
-            display: inline-block;
-            background: var(--sage);
-            color: var(--gold-light);
-            font-size: 0.72rem;
-            font-weight: 700;
-            letter-spacing: 2px;
-            padding: 5px 18px;
-            border-radius: 2px;
-            text-transform: uppercase;
-        }
-
-        /* Main card */
-        .card {
-            background: white;
-            border-radius: 3px;
-            box-shadow:
-                0 1px 0 var(--gold) inset,
-                0 -1px 0 var(--gold) inset,
-                0 30px 60px var(--shadow),
-                0 6px 20px var(--shadow);
-            overflow: hidden;
-            animation: fadeUp 0.7s ease both 0.1s;
-        }
-
-        /* Card header */
-        .card-header {
-            background: #1e3a5f;
-            padding: 30px 35px;
+        /* ─── Top Bar ─── */
+        .top-bar {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, #2563eb 100%);
+            padding: 16px 20px 60px;
             position: relative;
             overflow: hidden;
         }
 
-        .card-header::before {
+        .top-bar::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, #1d4ed8, #60a5fa, #1d4ed8);
-        }
-
-        .card-header::after {
-            content: '﷽';
-            position: absolute;
-            top: 50%; right: -10px;
-            transform: translateY(-50%);
-            font-size: 8rem;
-            opacity: 0.04;
-            color: var(--gold);
+            inset: 0;
+            background:
+                radial-gradient(ellipse 60% 80% at 0% 50%, rgba(255,255,255,0.06) 0%, transparent 60%),
+                radial-gradient(ellipse 40% 60% at 100% 0%, rgba(6,182,212,0.15) 0%, transparent 60%);
             pointer-events: none;
-            line-height: 1;
         }
 
-        .header-eyebrow {
+        .top-bar::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: var(--bg);
+            border-radius: 40px 40px 0 0;
+        }
+
+        .top-bar-inner {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 640px;
+            margin: 0 auto;
+        }
+
+        .top-bar-logo {
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 12px;
         }
 
-        .header-eyebrow .line {
-            flex: 1;
-            height: 1px;
-            background: rgba(201,168,76,0.3);
+        .logo-icon {
+            width: 38px;
+            height: 38px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.2);
         }
 
-        .header-eyebrow .dot {
-            width: 6px; height: 6px;
-            border-radius: 50%;
-            background: var(--gold);
-        }
-
-        .card-header h1 {
-            color: white;
-            font-size: 1.75rem;
-            font-weight: 900;
-            letter-spacing: -0.5px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .card-header h1 span {
-            color: var(--gold);
-        }
-
-        .card-header p {
-            color: rgba(255,255,255,0.45);
+        .logo-text {
+            color: rgba(255,255,255,0.9);
             font-size: 0.82rem;
-            margin-top: 6px;
-            font-weight: 300;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .top-bar-badge {
+            background: rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.85);
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+            letter-spacing: 0.5px;
+            backdrop-filter: blur(4px);
+        }
+
+        /* ─── Header Hero ─── */
+        .header-hero {
             position: relative;
             z-index: 1;
+            text-align: center;
+            padding: 24px 20px 0;
+            max-width: 640px;
+            margin: 0 auto;
         }
 
-        /* Card body */
-        .card-body {
-            padding: 35px;
+        .header-hero h1 {
+            color: white;
+            font-size: clamp(1.5rem, 5vw, 2rem);
+            font-weight: 800;
+            line-height: 1.3;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 20px rgba(0,0,0,0.2);
         }
 
-        /* Input section */
+        .header-hero h1 mark {
+            background: none;
+            color: #bfdbfe;
+        }
+
+        .header-hero p {
+            color: rgba(255,255,255,0.65);
+            font-size: 0.88rem;
+            font-weight: 400;
+            max-width: 340px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* ─── Main Content ─── */
+        .main-content {
+            flex: 1;
+            padding: 0 16px 32px;
+            max-width: 640px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* ─── Card ─── */
+        .card {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            border: 1px solid var(--border);
+            margin-bottom: 16px;
+            transition: var(--transition);
+        }
+
+        .card-section {
+            padding: 22px;
+        }
+
+        .card-section + .card-section {
+            border-top: 1px solid var(--border);
+        }
+
+        /* ─── Section Header ─── */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .section-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+            box-shadow: 0 4px 10px var(--primary-glow);
+        }
+
+        .section-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-1);
+        }
+
+        .section-subtitle {
+            font-size: 0.78rem;
+            color: var(--text-3);
+            margin-top: 2px;
+        }
+
+        /* ─── Inputs Grid ─── */
         .inputs-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 28px;
+            gap: 14px;
         }
 
+        /* ─── Field ─── */
         .field {
-            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
         }
 
-        .field label {
-            display: block;
+        .field-label {
             font-size: 0.78rem;
             font-weight: 700;
-            color: var(--sage);
-            letter-spacing: 0.5px;
-            margin-bottom: 8px;
-            text-transform: uppercase;
+            color: var(--text-2);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .field-label .lbl-icon {
+            font-size: 0.75rem;
+            opacity: 0.7;
         }
 
         .input-wrap {
             position: relative;
         }
 
-        .input-wrap input {
+        .input-wrap input[type="number"] {
             width: 100%;
-            padding: 14px 16px 14px 50px;
-            border: 1.5px solid var(--mist);
-            border-radius: 2px;
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 1.1rem;
+            padding: 13px 14px 13px 52px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: var(--font-num);
+            font-size: 1.05rem;
             font-weight: 600;
-            color: var(--ink);
-            background: var(--paper);
-            transition: all 0.25s ease;
+            color: var(--text-1);
+            background: var(--surface-2);
+            transition: var(--transition);
             appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: textfield;
+        }
+
+        .input-wrap input[type="number"]::-webkit-outer-spin-button,
+        .input-wrap input[type="number"]::-webkit-inner-spin-button {
             -webkit-appearance: none;
         }
 
         .input-wrap input:focus {
             outline: none;
-            border-color: var(--gold);
-            background: white;
-            box-shadow: 0 0 0 3px rgba(201,168,76,0.12);
+            border-color: var(--border-focus);
+            background: var(--surface);
+            box-shadow: 0 0 0 3px var(--primary-glow);
         }
 
-        .input-wrap .currency {
+        .input-suffix {
             position: absolute;
-            left: 15px;
+            left: 14px;
             top: 50%;
             transform: translateY(-50%);
-            font-family: 'Cairo', sans-serif;
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             font-weight: 700;
-            color: var(--gold-dark);
+            color: var(--primary);
+            background: var(--primary-glow);
+            padding: 2px 6px;
+            border-radius: 5px;
             pointer-events: none;
+            white-space: nowrap;
         }
 
         .field-hint {
             font-size: 0.72rem;
-            color: #999;
-            margin-top: 5px;
-            font-weight: 300;
+            color: var(--text-4);
         }
 
-        /* CTA Button */
-        .cta-btn {
+        /* ─── Button ─── */
+        .calc-btn {
             width: 100%;
-            padding: 16px;
-            background: #2563eb;
+            padding: 15px 20px;
+            margin-top: 6px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
             border: none;
-            border-radius: 2px;
-            font-family: 'Cairo', sans-serif;
-            font-size: 1rem;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-sans);
+            font-size: 0.97rem;
             font-weight: 700;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            transition: var(--transition);
+            box-shadow: 0 4px 14px rgba(30,64,175,0.35);
             position: relative;
             overflow: hidden;
-            transition: all 0.3s ease;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
         }
 
-        .cta-btn::before {
+        .calc-btn::before {
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(90deg, transparent, rgba(201,168,76,0.15), transparent);
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 50%, transparent 100%);
             transform: translateX(-100%);
-            transition: transform 0.5s ease;
+            transition: transform 0.6s ease;
         }
 
-        .cta-btn:hover {
-            background: #1d4ed8;
-            transform: translateY(-1px);
-            box-shadow: 0 8px 20px rgba(37,99,235,0.30);
+        .calc-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(30,64,175,0.4);
         }
 
-        .cta-btn:hover::before {
+        .calc-btn:hover::before {
             transform: translateX(100%);
         }
 
-        .cta-btn:active {
+        .calc-btn:active {
             transform: translateY(0);
+            box-shadow: 0 3px 10px rgba(30,64,175,0.3);
         }
 
         .btn-icon {
-            margin-left: 8px;
-            font-size: 1.1rem;
-        }
-
-        /* Divider */
-        .divider {
+            width: 28px;
+            height: 28px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 7px;
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin: 30px 0;
+            justify-content: center;
+            font-size: 0.9rem;
+            flex-shrink: 0;
         }
 
-        .divider .line { flex: 1; height: 1px; background: var(--mist); }
-
-        .divider .ornament {
-            color: var(--gold);
-            font-size: 1rem;
-            opacity: 0.6;
-        }
-
-        /* Results */
+        /* ─── Result Panel ─── */
         .result-panel {
             display: none;
-            animation: fadeUp 0.5s ease both;
         }
 
-        .result-panel.visible { display: block; }
+        .result-panel.visible {
+            display: block;
+        }
 
-        /* Tax hero display */
+        /* ─── Tax Hero ─── */
         .tax-hero {
-            background: #1e3a5f;
-            border-radius: 2px;
-            padding: 28px;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 60%, #2563eb 100%);
+            border-radius: var(--radius-md);
+            padding: 26px 20px;
             text-align: center;
             position: relative;
             overflow: hidden;
-            margin-bottom: 20px;
+            margin-bottom: 14px;
         }
 
         .tax-hero::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, var(--gold-dark), var(--gold), var(--gold-dark));
+            inset: 0;
+            background:
+                radial-gradient(ellipse 60% 70% at 0% 50%, rgba(255,255,255,0.06) 0%, transparent 60%),
+                radial-gradient(ellipse 40% 50% at 100% 0%, rgba(6,182,212,0.2) 0%, transparent 60%);
+            pointer-events: none;
         }
 
-        .tax-hero .label {
+        .tax-hero::after {
+            content: '';
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 200px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 50%;
+        }
+
+        .tax-hero-label {
             font-size: 0.72rem;
             font-weight: 700;
-            color: rgba(255,255,255,0.7);
-            letter-spacing: 2px;
+            color: rgba(255,255,255,0.6);
+            letter-spacing: 1.5px;
             text-transform: uppercase;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
+            position: relative;
         }
 
-        .tax-hero .amount {
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 3rem;
-            font-weight: 700;
-            color: #ffffff;
+        .tax-hero-amount {
+            font-family: var(--font-num);
+            font-size: clamp(2.2rem, 8vw, 3.2rem);
+            font-weight: 800;
+            color: white;
             line-height: 1;
             margin-bottom: 6px;
-            text-shadow: 0 0 30px rgba(96,165,250,0.5);
+            text-shadow: 0 0 40px rgba(147,197,253,0.4);
+            position: relative;
         }
 
-        .tax-hero .unit {
-            font-size: 0.8rem;
-            color: rgba(255,255,255,0.6);
-            font-weight: 400;
+        .tax-hero-amount.pop {
+            animation: pop 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
         }
 
-        /* Brackets breakdown */
-        .brackets {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 20px;
+        .tax-hero-unit {
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.55);
+            position: relative;
         }
 
-        .bracket-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 16px;
-            background: var(--paper);
-            border-radius: 2px;
-            border-right: 3px solid transparent;
-            transition: all 0.3s ease;
-        }
-
-        .bracket-row:nth-child(1) { border-right-color: var(--sage-light); }
-        .bracket-row:nth-child(2) { border-right-color: var(--gold); }
-        .bracket-row:nth-child(3) { border-right-color: var(--crimson); }
-
-        .bracket-info { display: flex; align-items: center; gap: 10px; }
-
-        .bracket-pct {
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 0.85rem;
-            font-weight: 600;
-            background: white;
-            border: 1px solid var(--mist);
-            border-radius: 2px;
-            padding: 3px 8px;
-            color: var(--ink);
-            min-width: 44px;
+        /* ─── No Tax State ─── */
+        .no-tax-card {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border: 1.5px solid #86efac;
+            border-radius: var(--radius-md);
+            padding: 28px 20px;
             text-align: center;
+            margin-bottom: 14px;
         }
 
-        .bracket-label { font-size: 0.82rem; color: #666; font-weight: 400; }
-
-        .bracket-amount {
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: #1e3a5f;
-        }
-
-        /* Summary row */
-        .summary-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 12px;
-        }
-
-        .summary-item {
-            background: var(--paper);
-            border-radius: 2px;
-            padding: 14px;
-            text-align: center;
-        }
-
-        .summary-item .s-label {
-            font-size: 0.68rem;
-            color: #999;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            margin-bottom: 6px;
-        }
-
-        .summary-item .s-value {
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 1rem;
-            font-weight: 700;
-            color: #1e3a5f;
-        }
-
-        /* Effective rate badge */
-        .effective-rate {
+        .no-tax-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
+            margin: 0 auto 14px;
+            font-size: 1.6rem;
+            box-shadow: 0 8px 20px rgba(34,197,94,0.3);
+        }
+
+        .no-tax-title {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: #15803d;
+            margin-bottom: 6px;
+        }
+
+        .no-tax-desc {
+            font-size: 0.82rem;
+            color: #16a34a;
+            line-height: 1.6;
+        }
+
+        /* ─── Brackets ─── */
+        .brackets-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .bracket-item {
+            background: var(--surface-2);
+            border-radius: var(--radius-sm);
+            padding: 14px 15px;
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .bracket-item:hover {
+            transform: translateX(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .bracket-accent {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+        }
+
+        .bracket-item:nth-child(1) .bracket-accent { background: linear-gradient(180deg, #3b82f6, #1d4ed8); }
+        .bracket-item:nth-child(2) .bracket-accent { background: linear-gradient(180deg, #f59e0b, #d97706); }
+        .bracket-item:nth-child(3) .bracket-accent { background: linear-gradient(180deg, #ef4444, #dc2626); }
+
+        .bracket-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .bracket-meta {
+            display: flex;
+            align-items: center;
             gap: 8px;
-            margin-top: 16px;
-            padding: 10px;
-            background: rgba(45,74,62,0.06);
-            border-radius: 2px;
         }
 
-        .effective-rate .er-label {
-            font-size: 0.78rem;
-            color: var(--sage);
-            font-weight: 600;
-        }
-
-        .effective-rate .er-value {
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 0.95rem;
+        .bracket-pct {
+            font-family: var(--font-num);
+            font-size: 0.82rem;
             font-weight: 700;
-            color: var(--sage);
-            background: rgba(45,74,62,0.12);
-            padding: 2px 10px;
+            padding: 3px 9px;
             border-radius: 20px;
+            background: var(--primary-glow);
+            color: var(--primary);
         }
 
-        /* No tax state */
-        .no-tax {
-            text-align: center;
-            padding: 30px;
-            background: rgba(45,74,62,0.05);
+        .bracket-item:nth-child(2) .bracket-pct {
+            background: rgba(245,158,11,0.12);
+            color: #b45309;
+        }
+
+        .bracket-item:nth-child(3) .bracket-pct {
+            background: rgba(239,68,68,0.10);
+            color: #dc2626;
+        }
+
+        .bracket-range {
+            font-size: 0.75rem;
+            color: var(--text-3);
+        }
+
+        .bracket-tax {
+            font-family: var(--font-num);
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-1);
+        }
+
+        .bracket-bar-track {
+            height: 4px;
+            background: var(--border);
             border-radius: 2px;
-            border: 1.5px dashed rgba(45,74,62,0.2);
+            overflow: hidden;
         }
 
-        .no-tax .icon { font-size: 2.5rem; margin-bottom: 10px; }
-        .no-tax p { color: var(--sage); font-weight: 600; font-size: 0.9rem; }
-        .no-tax small { color: #999; font-size: 0.78rem; margin-top: 5px; display: block; }
-
-        /* Animations */
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to   { opacity: 1; transform: translateY(0); }
+        .bracket-bar-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.1s;
         }
 
-        @keyframes fadeDown {
-            from { opacity: 0; transform: translateY(-10px); }
-            to   { opacity: 1; transform: translateY(0); }
+        .bracket-item:nth-child(1) .bracket-bar-fill { background: linear-gradient(90deg, #3b82f6, #1d4ed8); }
+        .bracket-item:nth-child(2) .bracket-bar-fill { background: linear-gradient(90deg, #f59e0b, #d97706); }
+        .bracket-item:nth-child(3) .bracket-bar-fill { background: linear-gradient(90deg, #ef4444, #dc2626); }
+
+        /* ─── Summary Grid ─── */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 14px;
         }
 
-        @keyframes countUp {
-            from { opacity: 0; transform: scale(0.8); }
-            to   { opacity: 1; transform: scale(1); }
-        }
-
-        .amount.animate { animation: countUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; }
-
-        /* Footer */
-        .card-footer {
-            background: var(--paper);
-            border-top: 1px solid var(--mist);
-            padding: 14px 35px;
+        .summary-item {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 14px 10px;
             text-align: center;
-            font-size: 0.72rem;
-            color: #aaa;
-            font-weight: 300;
+            transition: var(--transition);
         }
 
-        @media (max-width: 480px) {
-            .inputs-grid { grid-template-columns: 1fr; }
-            .summary-grid { grid-template-columns: 1fr; }
-            .card-body { padding: 25px 20px; }
-            .card-header { padding: 25px 20px; }
-            .tax-hero .amount { font-size: 2.2rem; }
+        .summary-item:hover {
+            box-shadow: var(--shadow-sm);
+        }
+
+        .s-icon {
+            font-size: 1.1rem;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .s-label {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--text-3);
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+            line-height: 1.4;
+        }
+
+        .s-value {
+            font-family: var(--font-num);
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--text-1);
+        }
+
+        /* ─── Effective Rate ─── */
+        .rate-card {
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            border: 1.5px solid #bfdbfe;
+            border-radius: var(--radius-sm);
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .rate-label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .rate-value {
+            font-family: var(--font-num);
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--primary-dark);
+            background: rgba(30,64,175,0.1);
+            padding: 4px 14px;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+
+        /* ─── Info Rows (Tax Brackets Guide) ─── */
+        .guide-card {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .guide-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            user-select: none;
+            transition: var(--transition);
+        }
+
+        .guide-header:hover {
+            background: var(--surface-2);
+        }
+
+        .guide-title {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--text-1);
+            flex: 1;
+        }
+
+        .guide-toggle {
+            color: var(--text-3);
+            font-size: 0.8rem;
+            transition: transform 0.25s ease;
+        }
+
+        .guide-toggle.open {
+            transform: rotate(180deg);
+        }
+
+        .guide-body {
+            display: none;
+            padding: 16px 20px;
+        }
+
+        .guide-body.open {
+            display: block;
+        }
+
+        .guide-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .guide-row:last-child {
+            border-bottom: none;
+        }
+
+        .guide-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .guide-row:nth-child(1) .guide-dot { background: #94a3b8; }
+        .guide-row:nth-child(2) .guide-dot { background: #3b82f6; }
+        .guide-row:nth-child(3) .guide-dot { background: #f59e0b; }
+        .guide-row:nth-child(4) .guide-dot { background: #ef4444; }
+
+        .guide-bracket-label {
+            flex: 1;
+            font-size: 0.8rem;
+            color: var(--text-2);
+        }
+
+        .guide-bracket-pct {
+            font-family: var(--font-num);
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-1);
+        }
+
+        /* ─── Footer ─── */
+        .app-footer {
+            padding: 20px 20px 36px;
+            text-align: center;
+        }
+
+        .footer-note {
+            font-size: 0.72rem;
+            color: var(--text-4);
+            line-height: 1.7;
+            max-width: 380px;
+            margin: 0 auto;
+        }
+
+        .footer-note strong {
+            color: var(--text-3);
+        }
+
+        /* ─── Animations ─── */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pop {
+            0%   { opacity: 0; transform: scale(0.75); }
+            70%  { transform: scale(1.06); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-panel.visible > * {
+            animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+        }
+
+        .result-panel.visible > *:nth-child(2) { animation-delay: 0.05s; }
+        .result-panel.visible > *:nth-child(3) { animation-delay: 0.10s; }
+        .result-panel.visible > *:nth-child(4) { animation-delay: 0.15s; }
+
+        /* ─── Pulse on calculate ─── */
+        .calc-btn.loading {
+            pointer-events: none;
+            opacity: 0.85;
+        }
+
+        /* ─── Divider ─── */
+        .sep {
+            height: 1px;
+            background: var(--border);
+            margin: 6px 0;
+        }
+
+        /* ─── Responsive ─── */
+        @media (max-width: 420px) {
+            .top-bar { padding-bottom: 54px; }
+            .inputs-grid { grid-template-columns: 1fr; gap: 12px; }
+            .summary-grid { grid-template-columns: 1fr 1fr; }
+            .summary-grid .summary-item:last-child { grid-column: 1 / -1; }
+            .header-hero h1 { font-size: 1.4rem; }
+            .card-section { padding: 18px; }
+        }
+
+        @media (min-width: 640px) {
+            .main-content { padding: 0 24px 40px; }
+            .card-section { padding: 26px; }
+            .top-bar { padding-bottom: 70px; }
+        }
+
+        /* ─── Print ─── */
+        @media print {
+            body { background: white; }
+            body::before { display: none; }
+            .top-bar::after { display: none; }
+            .calc-btn { display: none; }
+            .guide-card { display: none; }
         }
     </style>
 </head>
 <body>
 
-<div class="corner-bottom"></div>
+<div class="app-wrapper">
 
-<div class="wrapper">
-    <div class="header-badge">
-        <span>نظام حساب الضرائب</span>
-    </div>
-
-    <div class="card">
-        <div class="card-header">
-            <div class="header-eyebrow">
-                <div class="dot"></div>
-                <div class="line"></div>
-                <div class="dot"></div>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="top-bar-inner">
+            <div class="top-bar-logo">
+                <div class="logo-icon">&#128200;</div>
+                <span class="logo-text">نظام الرواتب</span>
             </div>
-            <h1>حاسبة <span>ضريبة</span> الدخل</h1>
+            <div class="top-bar-badge">2024</div>
+        </div>
+
+        <div class="header-hero">
+            <h1>حاسبة <mark>ضريبة</mark> الدخل</h1>
             <p>احتساب الضريبة المستحقة على الرواتب وفق الشرائح المعتمدة</p>
         </div>
-
-        <div class="card-body">
-            <div class="inputs-grid">
-                <div class="field">
-                    <label>الراتب المقطوع</label>
-                    <div class="input-wrap">
-                        <input type="number" id="basicSalary" value="20000" min="0" placeholder="0">
-                        <span class="currency">ل.س</span>
-                    </div>
-                    <div class="field-hint">الراتب الإجمالي الشهري</div>
-                </div>
-                <div class="field">
-                    <label>التأمينات الاجتماعية</label>
-                    <div class="input-wrap">
-                        <input type="number" id="insurance" value="1400" min="0" placeholder="0">
-                        <span class="currency">ل.س</span>
-                    </div>
-                    <div class="field-hint">خصومات التأمينات المعتمدة</div>
-                </div>
-            </div>
-
-            <button class="cta-btn" onclick="calculateTax()">
-                <span class="btn-icon">⊞</span>
-                احتساب الضريبة المستحقة
-            </button>
-
-            <div class="divider">
-                <div class="line"></div>
-                <div class="ornament">✦</div>
-                <div class="line"></div>
-            </div>
-
-            <div class="result-panel" id="resultPanel">
-                <!-- Dynamic content injected here -->
-            </div>
-        </div>
-
-        <div class="card-footer">
-            الأرقام تقديرية للأغراض المعلوماتية فقط · يُنصح بمراجعة مختص ضريبي معتمد
-        </div>
     </div>
-</div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+
+        <!-- Input Card -->
+        <div class="card">
+            <div class="card-section">
+                <div class="section-header">
+                    <div class="section-icon">&#128181;</div>
+                    <div>
+                        <div class="section-title">بيانات الراتب</div>
+                        <div class="section-subtitle">أدخل قيم الراتب والخصومات</div>
+                    </div>
+                </div>
+
+                <div class="inputs-grid">
+                    <div class="field">
+                        <label class="field-label">
+                            <span class="lbl-icon">&#128179;</span>
+                            الراتب المقطوع
+                        </label>
+                        <div class="input-wrap">
+                            <input
+                                type="number"
+                                id="basicSalary"
+                                value="20000"
+                                min="0"
+                                placeholder="0"
+                                oninput="onInput()"
+                            >
+                            <span class="input-suffix">ل.س</span>
+                        </div>
+                        <div class="field-hint">الراتب الإجمالي الشهري</div>
+                    </div>
+
+                    <div class="field">
+                        <label class="field-label">
+                            <span class="lbl-icon">&#128203;</span>
+                            التأمينات الاجتماعية
+                        </label>
+                        <div class="input-wrap">
+                            <input
+                                type="number"
+                                id="insurance"
+                                value="1400"
+                                min="0"
+                                placeholder="0"
+                                oninput="onInput()"
+                            >
+                            <span class="input-suffix">ل.س</span>
+                        </div>
+                        <div class="field-hint">خصومات التأمينات المعتمدة</div>
+                    </div>
+                </div>
+
+                <button class="calc-btn" onclick="calculateTax(true)" id="calcBtn">
+                    <span class="btn-icon">&#9651;</span>
+                    احتساب الضريبة المستحقة
+                </button>
+            </div>
+
+            <!-- Result Panel (injected into card) -->
+            <div id="resultPanel" class="result-panel">
+                <!-- dynamic -->
+            </div>
+        </div>
+
+        <!-- Tax Brackets Guide (collapsible) -->
+        <div class="guide-card">
+            <div class="guide-header" onclick="toggleGuide()" id="guideHeader">
+                <div class="section-icon" style="width:30px;height:30px;font-size:0.78rem;">&#128218;</div>
+                <div class="guide-title">جدول الشرائح الضريبية المعتمدة</div>
+                <span class="guide-toggle" id="guideToggle">&#9660;</span>
+            </div>
+            <div class="guide-body" id="guideBody">
+                <div class="guide-row">
+                    <div class="guide-dot"></div>
+                    <div class="guide-bracket-label">حتى 12,560 — معفى تماماً</div>
+                    <div class="guide-bracket-pct">0%</div>
+                </div>
+                <div class="guide-row">
+                    <div class="guide-dot"></div>
+                    <div class="guide-bracket-label">12,561 – 12,750</div>
+                    <div class="guide-bracket-pct">11%</div>
+                </div>
+                <div class="guide-row">
+                    <div class="guide-dot"></div>
+                    <div class="guide-bracket-label">12,751 – 16,500</div>
+                    <div class="guide-bracket-pct">13%</div>
+                </div>
+                <div class="guide-row">
+                    <div class="guide-dot"></div>
+                    <div class="guide-bracket-label">16,500 فأكثر</div>
+                    <div class="guide-bracket-pct">15%</div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /main-content -->
+
+    <!-- Footer -->
+    <div class="app-footer">
+        <p class="footer-note">
+            <strong>تنبيه:</strong> الأرقام المعروضة تقديرية للأغراض المعلوماتية فقط.
+            يُنصح بمراجعة مختص ضريبي معتمد للحصول على استشارة دقيقة.
+        </p>
+    </div>
+
+</div><!-- /app-wrapper -->
 
 <script>
-function fmt(n) {
-    return n.toLocaleString('ar-EG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-
-function calculateTax() {
-    const salary    = parseFloat(document.getElementById('basicSalary').value) || 0;
-    const insurance = parseFloat(document.getElementById('insurance').value) || 0;
-    const taxableBase = salary - insurance;
-
-    const panel = document.getElementById('resultPanel');
-    panel.classList.remove('visible');
-
-    let tax = 0;
-    let brackets = [];
-
-    if (taxableBase > 12560) {
-        // Bracket 1: 12561–12750 @ 11%
-        const b1amt = Math.min(taxableBase, 12750) - 12560;
-        const b1tax = b1amt * 0.11;
-        if (b1amt > 0) {
-            tax += b1tax;
-            brackets.push({ pct: '11%', label: 'الشريحة الأولى (12,561 – 12,750)', exposed: b1amt, tax: b1tax });
-        }
-
-        // Bracket 2: 12751–16500 @ 13%
-        if (taxableBase > 12750) {
-            const b2amt = Math.min(taxableBase, 16500) - 12750;
-            const b2tax = b2amt * 0.13;
-            tax += b2tax;
-            brackets.push({ pct: '13%', label: 'الشريحة الثانية (12,751 – 16,500)', exposed: b2amt, tax: b2tax });
-        }
-
-        // Bracket 3: 16500+ @ 15%
-        if (taxableBase > 16500) {
-            const b3amt = taxableBase - 16500;
-            const b3tax = b3amt * 0.15;
-            tax += b3tax;
-            brackets.push({ pct: '15%', label: 'الشريحة الثالثة (16,500+)', exposed: b3amt, tax: b3tax });
-        }
+    // ─── Utilities ───
+    function fmt(n) {
+        if (isNaN(n)) return '0.00';
+        return n.toLocaleString('ar-EG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
-    const effectiveRate = salary > 0 ? (tax / salary * 100) : 0;
-
-    let html = '';
-
-    if (taxableBase <= 12560 || tax === 0) {
-        html = `
-            <div class="no-tax">
-                <div class="icon">✓</div>
-                <p>لا توجد ضريبة مستحقة</p>
-                <small>الدخل الخاضع (${fmt(taxableBase)}) لا يتجاوز الحد المعفى 12,560</small>
-            </div>`;
-    } else {
-        const bracketsHtml = brackets.map(b => `
-            <div class="bracket-row">
-                <div class="bracket-info">
-                    <span class="bracket-pct">${b.pct}</span>
-                    <span class="bracket-label">${b.label}</span>
-                </div>
-                <span class="bracket-amount">${fmt(b.tax)}</span>
-            </div>`).join('');
-
-        html = `
-            <div class="tax-hero">
-                <div class="label">إجمالي الضريبة المستحقة</div>
-                <div class="amount animate">${fmt(tax)}</div>
-                <div class="unit">ليرة سورية شهرياً</div>
-            </div>
-
-            <div class="brackets">
-                ${bracketsHtml}
-            </div>
-
-            <div class="summary-grid">
-                <div class="summary-item">
-                    <div class="s-label">الراتب الصافي</div>
-                    <div class="s-value">${fmt(taxableBase)}</div>
-                </div>
-                <div class="summary-item">
-                    <div class="s-label">الحد المعفى</div>
-                    <div class="s-value">12,560</div>
-                </div>
-                <div class="summary-item">
-                    <div class="s-label">صافي بعد الضريبة</div>
-                    <div class="s-value">${fmt(salary - insurance - tax)}</div>
-                </div>
-            </div>
-
-            <div class="effective-rate">
-                <span class="er-label">المعدل الفعلي للضريبة على الراتب:</span>
-                <span class="er-value">${effectiveRate.toFixed(2)}%</span>
-            </div>`;
+    function fmtShort(n) {
+        return n.toLocaleString('ar-EG', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
     }
 
-    panel.innerHTML = html;
-    setTimeout(() => panel.classList.add('visible'), 10);
-}
+    // ─── Guide Toggle ───
+    function toggleGuide() {
+        var body   = document.getElementById('guideBody');
+        var toggle = document.getElementById('guideToggle');
+        body.classList.toggle('open');
+        toggle.classList.toggle('open');
+    }
 
-// Run on load
-calculateTax();
+    // ─── Live recalc on input ───
+    var debounceTimer;
+    function onInput() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(function() { calculateTax(false); }, 350);
+    }
+
+    // ─── Core Calculator ───
+    function calculateTax(animated) {
+        var salary    = parseFloat(document.getElementById('basicSalary').value) || 0;
+        var insurance = parseFloat(document.getElementById('insurance').value)   || 0;
+        var taxable   = salary - insurance;
+        if (taxable < 0) taxable = 0;
+
+        var tax      = 0;
+        var brackets = [];
+
+        if (taxable > 12560) {
+            // Bracket 1: 11%
+            var b1 = Math.min(taxable, 12750) - 12560;
+            if (b1 > 0) {
+                var t1 = b1 * 0.11;
+                tax += t1;
+                brackets.push({ pct: '11%', range: '12,561 – 12,750', exposed: b1, tax: t1 });
+            }
+            // Bracket 2: 13%
+            if (taxable > 12750) {
+                var b2 = Math.min(taxable, 16500) - 12750;
+                var t2 = b2 * 0.13;
+                tax += t2;
+                brackets.push({ pct: '13%', range: '12,751 – 16,500', exposed: b2, tax: t2 });
+            }
+            // Bracket 3: 15%
+            if (taxable > 16500) {
+                var b3 = taxable - 16500;
+                var t3 = b3 * 0.15;
+                tax += t3;
+                brackets.push({ pct: '15%', range: '16,500+', exposed: b3, tax: t3 });
+            }
+        }
+
+        var netAfterInsurance = taxable;
+        var netAfterTax       = salary - insurance - tax;
+        var effectiveRate     = salary > 0 ? (tax / salary * 100) : 0;
+        var panel             = document.getElementById('resultPanel');
+
+        panel.classList.remove('visible');
+
+        var html = '';
+
+        if (taxable <= 12560 || tax === 0) {
+            // ── No Tax ──
+            html = '<div class="card-section">' +
+                '<div class="no-tax-card">' +
+                    '<div class="no-tax-icon">&#10003;</div>' +
+                    '<div class="no-tax-title">لا توجد ضريبة مستحقة</div>' +
+                    '<div class="no-tax-desc">' +
+                        'الدخل الخاضع للضريبة (<strong>' + fmtShort(taxable) + ' ل.س</strong>) ' +
+                        'لا يتجاوز الحد المعفى البالغ 12,560 ل.س' +
+                    '</div>' +
+                '</div>' +
+            '</div>';
+        } else {
+            // ── Has Tax ──
+            var maxTax = Math.max.apply(null, brackets.map(function(b) { return b.tax; }));
+
+            var bracketsHtml = brackets.map(function(b) {
+                var pct = maxTax > 0 ? (b.tax / maxTax * 100) : 0;
+                return '<div class="bracket-item">' +
+                    '<div class="bracket-accent"></div>' +
+                    '<div class="bracket-header">' +
+                        '<div class="bracket-meta">' +
+                            '<span class="bracket-pct">' + b.pct + '</span>' +
+                            '<span class="bracket-range">' + b.range + '</span>' +
+                        '</div>' +
+                        '<span class="bracket-tax">' + fmt(b.tax) + '</span>' +
+                    '</div>' +
+                    '<div class="bracket-bar-track">' +
+                        '<div class="bracket-bar-fill" style="width:0%" data-target="' + pct.toFixed(1) + '"></div>' +
+                    '</div>' +
+                '</div>';
+            }).join('');
+
+            html =
+                '<div class="card-section">' +
+                    '<div class="tax-hero">' +
+                        '<div class="tax-hero-label">&#9651; إجمالي الضريبة المستحقة</div>' +
+                        '<div class="tax-hero-amount' + (animated ? ' pop' : '') + '" id="taxAmountDisplay">' + fmt(tax) + '</div>' +
+                        '<div class="tax-hero-unit">ليرة سورية شهرياً</div>' +
+                    '</div>' +
+                    '<div class="brackets-wrapper">' + bracketsHtml + '</div>' +
+                    '<div class="summary-grid">' +
+                        '<div class="summary-item">' +
+                            '<span class="s-icon">&#128200;</span>' +
+                            '<div class="s-label">الدخل الخاضع</div>' +
+                            '<div class="s-value">' + fmtShort(taxable) + '</div>' +
+                        '</div>' +
+                        '<div class="summary-item">' +
+                            '<span class="s-icon">&#128308;</span>' +
+                            '<div class="s-label">الضريبة</div>' +
+                            '<div class="s-value">' + fmtShort(tax) + '</div>' +
+                        '</div>' +
+                        '<div class="summary-item">' +
+                            '<span class="s-icon">&#128994;</span>' +
+                            '<div class="s-label">الصافي بعد الضريبة</div>' +
+                            '<div class="s-value">' + fmtShort(netAfterTax) + '</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="rate-card">' +
+                        '<span class="rate-label">&#128202; المعدل الفعلي للضريبة</span>' +
+                        '<span class="rate-value">' + effectiveRate.toFixed(2) + '%</span>' +
+                    '</div>' +
+                '</div>';
+        }
+
+        panel.innerHTML = html;
+
+        setTimeout(function() {
+            panel.classList.add('visible');
+            // Animate progress bars
+            var bars = panel.querySelectorAll('.bracket-bar-fill');
+            bars.forEach(function(bar) {
+                var target = bar.getAttribute('data-target');
+                setTimeout(function() { bar.style.width = target + '%'; }, 80);
+            });
+        }, 10);
+    }
+
+    // ─── Init ───
+    calculateTax(false);
 </script>
 </body>
 </html>
