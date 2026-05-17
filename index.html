@@ -4,212 +4,693 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>حاسبة الضريبة على الرواتب</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #2b6cb0;
-            --bg: #f7fafc;
-            --card-bg: #ffffff;
-            --text: #2d3748;
-            --accent: #e53e3e;
-            --success: #319795;
+            --ink: #1e3a5f;
+            --paper: #f0f5fb;
+            --gold: #2563eb;
+            --gold-light: #bfdbfe;
+            --gold-dark: #1d4ed8;
+            --crimson: #dc2626;
+            --sage: #0f4c81;
+            --sage-light: #3b82f6;
+            --mist: #dbeafe;
+            --shadow: rgba(37,99,235,0.10);
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--paper);
+            color: var(--ink);
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            position: relative;
+            overflow-x: hidden;
         }
 
-        .container {
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        /* Decorative background pattern */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                radial-gradient(circle at 15% 20%, rgba(37,99,235,0.08) 0%, transparent 50%),
+                radial-gradient(circle at 85% 80%, rgba(30,58,95,0.08) 0%, transparent 50%),
+                repeating-linear-gradient(
+                    45deg,
+                    transparent,
+                    transparent 40px,
+                    rgba(37,99,235,0.03) 40px,
+                    rgba(37,99,235,0.03) 41px
+                );
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Corner ornaments */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 20px; right: 20px;
+            width: 80px; height: 80px;
+            border-top: 2px solid #2563eb;
+            border-right: 2px solid #2563eb;
+            opacity: 0.4;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .corner-bottom {
+            position: fixed;
+            bottom: 20px; left: 20px;
+            width: 80px; height: 80px;
+            border-bottom: 2px solid #2563eb;
+            border-left: 2px solid #2563eb;
+            opacity: 0.4;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .wrapper {
+            position: relative;
+            z-index: 1;
             width: 100%;
-            max-width: 550px;
+            max-width: 580px;
         }
 
-        h2 {
+        /* Header badge */
+        .header-badge {
             text-align: center;
-            color: var(--primary);
-            margin-bottom: 25px;
-            font-size: 1.6rem;
-            border-bottom: 2px solid #e2e8f0;
-            padding-bottom: 10px;
+            margin-bottom: 8px;
+            animation: fadeDown 0.6s ease both;
         }
 
-        .input-group {
+        .header-badge span {
+            display: inline-block;
+            background: var(--sage);
+            color: var(--gold-light);
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            padding: 5px 18px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        /* Main card */
+        .card {
+            background: white;
+            border-radius: 3px;
+            box-shadow:
+                0 1px 0 var(--gold) inset,
+                0 -1px 0 var(--gold) inset,
+                0 30px 60px var(--shadow),
+                0 6px 20px var(--shadow);
+            overflow: hidden;
+            animation: fadeUp 0.7s ease both 0.1s;
+        }
+
+        /* Card header */
+        .card-header {
+            background: #1e3a5f;
+            padding: 30px 35px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #1d4ed8, #60a5fa, #1d4ed8);
+        }
+
+        .card-header::after {
+            content: '﷽';
+            position: absolute;
+            top: 50%; right: -10px;
+            transform: translateY(-50%);
+            font-size: 8rem;
+            opacity: 0.04;
+            color: var(--gold);
+            pointer-events: none;
+            line-height: 1;
+        }
+
+        .header-eyebrow {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .header-eyebrow .line {
+            flex: 1;
+            height: 1px;
+            background: rgba(201,168,76,0.3);
+        }
+
+        .header-eyebrow .dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--gold);
+        }
+
+        .card-header h1 {
+            color: white;
+            font-size: 1.75rem;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-header h1 span {
+            color: var(--gold);
+        }
+
+        .card-header p {
+            color: rgba(255,255,255,0.45);
+            font-size: 0.82rem;
+            margin-top: 6px;
+            font-weight: 300;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Card body */
+        .card-body {
+            padding: 35px;
+        }
+
+        /* Input section */
+        .inputs-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .field {
+            position: relative;
+        }
+
+        .field label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--sage);
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-wrap input {
+            width: 100%;
+            padding: 14px 16px 14px 50px;
+            border: 1.5px solid var(--mist);
+            border-radius: 2px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--ink);
+            background: var(--paper);
+            transition: all 0.25s ease;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .input-wrap input:focus {
+            outline: none;
+            border-color: var(--gold);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(201,168,76,0.12);
+        }
+
+        .input-wrap .currency {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-family: 'Cairo', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--gold-dark);
+            pointer-events: none;
+        }
+
+        .field-hint {
+            font-size: 0.72rem;
+            color: #999;
+            margin-top: 5px;
+            font-weight: 300;
+        }
+
+        /* CTA Button */
+        .cta-btn {
+            width: 100%;
+            padding: 16px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 2px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+        }
+
+        .cta-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(201,168,76,0.15), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.5s ease;
+        }
+
+        .cta-btn:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(37,99,235,0.30);
+        }
+
+        .cta-btn:hover::before {
+            transform: translateX(100%);
+        }
+
+        .cta-btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-icon {
+            margin-left: 8px;
+            font-size: 1.1rem;
+        }
+
+        /* Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 30px 0;
+        }
+
+        .divider .line { flex: 1; height: 1px; background: var(--mist); }
+
+        .divider .ornament {
+            color: var(--gold);
+            font-size: 1rem;
+            opacity: 0.6;
+        }
+
+        /* Results */
+        .result-panel {
+            display: none;
+            animation: fadeUp 0.5s ease both;
+        }
+
+        .result-panel.visible { display: block; }
+
+        /* Tax hero display */
+        .tax-hero {
+            background: #1e3a5f;
+            border-radius: 2px;
+            padding: 28px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
             margin-bottom: 20px;
         }
 
-        label {
-            display: block;
-            margin-bottom: 8px;
+        .tax-hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--gold-dark), var(--gold), var(--gold-dark));
+        }
+
+        .tax-hero .label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: rgba(255,255,255,0.7);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .tax-hero .amount {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 3rem;
+            font-weight: 700;
+            color: #ffffff;
+            line-height: 1;
+            margin-bottom: 6px;
+            text-shadow: 0 0 30px rgba(96,165,250,0.5);
+        }
+
+        .tax-hero .unit {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.6);
+            font-weight: 400;
+        }
+
+        /* Brackets breakdown */
+        .brackets {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .bracket-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: var(--paper);
+            border-radius: 2px;
+            border-right: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .bracket-row:nth-child(1) { border-right-color: var(--sage-light); }
+        .bracket-row:nth-child(2) { border-right-color: var(--gold); }
+        .bracket-row:nth-child(3) { border-right-color: var(--crimson); }
+
+        .bracket-info { display: flex; align-items: center; gap: 10px; }
+
+        .bracket-pct {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.85rem;
             font-weight: 600;
-            font-size: 0.95rem;
-        }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #cbd5e0;
-            border-radius: 8px;
-            font-size: 1rem;
-            box-sizing: border-box;
-            transition: border-color 0.3s;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        button {
-            width: 100%;
-            background-color: var(--primary);
-            color: white;
-            padding: 14px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        button:hover {
-            background-color: #1a5694;
-        }
-
-        .result-box {
-            margin-top: 25px;
-            padding: 20px;
-            background-color: #edf2f7;
-            border-radius: 8px;
-            border-right: 5px solid var(--success);
-            display: none;
-        }
-
-        .result-title {
-            font-size: 1.1rem;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .final-tax {
-            font-size: 2rem;
-            color: var(--accent);
-            font-weight: 800;
+            background: white;
+            border: 1px solid var(--mist);
+            border-radius: 2px;
+            padding: 3px 8px;
+            color: var(--ink);
+            min-width: 44px;
             text-align: center;
-            margin: 15px 0;
-            background: #fff;
+        }
+
+        .bracket-label { font-size: 0.82rem; color: #666; font-weight: 400; }
+
+        .bracket-amount {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #1e3a5f;
+        }
+
+        /* Summary row */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+        }
+
+        .summary-item {
+            background: var(--paper);
+            border-radius: 2px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .summary-item .s-label {
+            font-size: 0.68rem;
+            color: #999;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .summary-item .s-value {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1e3a5f;
+        }
+
+        /* Effective rate badge */
+        .effective-rate {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 16px;
             padding: 10px;
-            border-radius: 6px;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+            background: rgba(45,74,62,0.06);
+            border-radius: 2px;
         }
 
-        .details-log {
-            font-size: 0.9rem;
-            line-height: 1.6;
-            color: #4a5568;
-            background: #fff;
-            padding: 12px;
-            border-radius: 6px;
-            margin-top: 10px;
-            border: 1px solid #e2e8f0;
+        .effective-rate .er-label {
+            font-size: 0.78rem;
+            color: var(--sage);
+            font-weight: 600;
         }
 
-        hr {
-            border: 0;
-            border-top: 1px solid #e2e8f0;
-            margin: 15px 0;
+        .effective-rate .er-value {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--sage);
+            background: rgba(45,74,62,0.12);
+            padding: 2px 10px;
+            border-radius: 20px;
+        }
+
+        /* No tax state */
+        .no-tax {
+            text-align: center;
+            padding: 30px;
+            background: rgba(45,74,62,0.05);
+            border-radius: 2px;
+            border: 1.5px dashed rgba(45,74,62,0.2);
+        }
+
+        .no-tax .icon { font-size: 2.5rem; margin-bottom: 10px; }
+        .no-tax p { color: var(--sage); font-weight: 600; font-size: 0.9rem; }
+        .no-tax small { color: #999; font-size: 0.78rem; margin-top: 5px; display: block; }
+
+        /* Animations */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes countUp {
+            from { opacity: 0; transform: scale(0.8); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+
+        .amount.animate { animation: countUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; }
+
+        /* Footer */
+        .card-footer {
+            background: var(--paper);
+            border-top: 1px solid var(--mist);
+            padding: 14px 35px;
+            text-align: center;
+            font-size: 0.72rem;
+            color: #aaa;
+            font-weight: 300;
+        }
+
+        @media (max-width: 480px) {
+            .inputs-grid { grid-template-columns: 1fr; }
+            .summary-grid { grid-template-columns: 1fr; }
+            .card-body { padding: 25px 20px; }
+            .card-header { padding: 25px 20px; }
+            .tax-hero .amount { font-size: 2.2rem; }
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>حاسبة ضريبة الدخل</h2>
-    
-    <div class="input-group">
-        <label for="basicSalary">الراتب المقطوع (مستطيل متغير):</label>
-        <input type="number" id="basicSalary" placeholder="أدخل الراتب المقطوع" value="20000" min="0">
+<div class="corner-bottom"></div>
+
+<div class="wrapper">
+    <div class="header-badge">
+        <span>نظام حساب الضرائب</span>
     </div>
 
-    <div class="input-group">
-        <label for="insurance">التأمينات (مستطيل متغير):</label>
-        <input type="number" id="insurance" placeholder="أدخل قيمة التأمينات" value="1400" min="0">
-    </div>
+    <div class="card">
+        <div class="card-header">
+            <div class="header-eyebrow">
+                <div class="dot"></div>
+                <div class="line"></div>
+                <div class="dot"></div>
+            </div>
+            <h1>حاسبة <span>ضريبة</span> الدخل</h1>
+            <p>احتساب الضريبة المستحقة على الرواتب وفق الشرائح المعتمدة</p>
+        </div>
 
-    <button onclick="calculateTax()">احسب الضريبة</button>
+        <div class="card-body">
+            <div class="inputs-grid">
+                <div class="field">
+                    <label>الراتب المقطوع</label>
+                    <div class="input-wrap">
+                        <input type="number" id="basicSalary" value="20000" min="0" placeholder="0">
+                        <span class="currency">ل.س</span>
+                    </div>
+                    <div class="field-hint">الراتب الإجمالي الشهري</div>
+                </div>
+                <div class="field">
+                    <label>التأمينات الاجتماعية</label>
+                    <div class="input-wrap">
+                        <input type="number" id="insurance" value="1400" min="0" placeholder="0">
+                        <span class="currency">ل.س</span>
+                    </div>
+                    <div class="field-hint">خصومات التأمينات المعتمدة</div>
+                </div>
+            </div>
 
-    <div class="result-box" id="resultBox">
-        <div class="result-title">🎯 تفاصيل العملية الحسابية:</div>
-        <div id="calcSteps" class="details-log"></div>
-        <hr>
-        <div class="result-title" style="text-align: center;">إجمالي الضريبة المستحقة:</div>
-        <div class="final-tax" id="totalTax">0.00</div>
+            <button class="cta-btn" onclick="calculateTax()">
+                <span class="btn-icon">⊞</span>
+                احتساب الضريبة المستحقة
+            </button>
+
+            <div class="divider">
+                <div class="line"></div>
+                <div class="ornament">✦</div>
+                <div class="line"></div>
+            </div>
+
+            <div class="result-panel" id="resultPanel">
+                <!-- Dynamic content injected here -->
+            </div>
+        </div>
+
+        <div class="card-footer">
+            الأرقام تقديرية للأغراض المعلوماتية فقط · يُنصح بمراجعة مختص ضريبي معتمد
+        </div>
     </div>
 </div>
 
 <script>
+function fmt(n) {
+    return n.toLocaleString('ar-EG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
 function calculateTax() {
-    // 1. جلب القيم من المستطيلات المتغيرة
-    const salary = parseFloat(document.getElementById('basicSalary').value) || 0;
+    const salary    = parseFloat(document.getElementById('basicSalary').value) || 0;
     const insurance = parseFloat(document.getElementById('insurance').value) || 0;
-    
-    // 2. حساب الوعاء الخاضع للضريبة المبدئي (الراتب - التأمينات)
     const taxableBase = salary - insurance;
-    
+
+    const panel = document.getElementById('resultPanel');
+    panel.classList.remove('visible');
+
     let tax = 0;
-    let stepsHtml = '';
+    let brackets = [];
 
-    stepsHtml += `• الراتب الصافي بعد التأمينات: <b>${taxableBase.toFixed(2)}</b><br>`;
-
-    // التحقق إذا كان المبلغ بعد التأمينات أعلى من الحد المعفى
     if (taxableBase > 12560) {
-        stepsHtml += `• الحد الأدنى المعفى: <b>12560</b> (الضريبة فوق هذا الحد)<br><br><b>توزيع الشرائح:</b><br>`;
-        
-        // الشريحة الأولى: من 12561 إلى 12750 (المدى الحجمي = 190) بنسبة 11%
-        if (taxableBase > 12560) {
-            let chunk1 = Math.min(taxableBase, 12750) - 12560;
-            let tax1 = chunk1 * 0.11;
-            tax += tax1;
-            stepsHtml += `- الشريحة الأولى (11%): خضع منها <b>${chunk1.toFixed(2)}</b> ← الضريبة: <b>${tax1.toFixed(2)}</b><br>`;
+        // Bracket 1: 12561–12750 @ 11%
+        const b1amt = Math.min(taxableBase, 12750) - 12560;
+        const b1tax = b1amt * 0.11;
+        if (b1amt > 0) {
+            tax += b1tax;
+            brackets.push({ pct: '11%', label: 'الشريحة الأولى (12,561 – 12,750)', exposed: b1amt, tax: b1tax });
         }
 
-        // الشريحة الثانية: من 12751 إلى 16500 (المدى الحجمي = 3749) بنسبة 13%
+        // Bracket 2: 12751–16500 @ 13%
         if (taxableBase > 12750) {
-            let chunk2 = Math.min(taxableBase, 16500) - 12750;
-            let tax2 = chunk2 * 0.13;
-            tax += tax2;
-            stepsHtml += `- الشريحة الثانية (13%): خضع منها <b>${chunk2.toFixed(2)}</b> ← الضريبة: <b>${tax2.toFixed(2)}</b><br>`;
+            const b2amt = Math.min(taxableBase, 16500) - 12750;
+            const b2tax = b2amt * 0.13;
+            tax += b2tax;
+            brackets.push({ pct: '13%', label: 'الشريحة الثانية (12,751 – 16,500)', exposed: b2amt, tax: b2tax });
         }
 
-        // الشريحة الثالثة: من 16501 فما فوق بنسبة 15%
+        // Bracket 3: 16500+ @ 15%
         if (taxableBase > 16500) {
-            let chunk3 = taxableBase - 16500;
-            let tax3 = chunk3 * 0.15;
-            tax += tax3;
-            stepsHtml += `- الشريحة الثالثة (15%): خضع منها <b>${chunk3.toFixed(2)}</b> ← الضريبة: <b>${tax3.toFixed(2)}</b><br>`;
+            const b3amt = taxableBase - 16500;
+            const b3tax = b3amt * 0.15;
+            tax += b3tax;
+            brackets.push({ pct: '15%', label: 'الشريحة الثالثة (16,500+)', exposed: b3amt, tax: b3tax });
         }
-
-    } else {
-        stepsHtml += `• المبلغ الصافي (<b>${taxableBase.toFixed(2)}</b>) أقل من أو يساوي الحد المعفى (12560). لا توجد ضريبة.`;
     }
 
-    // 3. عرض النتائج في المكان المميز
-    document.getElementById('calcSteps').innerHTML = stepsHtml;
-    document.getElementById('totalTax').innerText = tax.toFixed(2) + " وحدة نقدية";
-    document.getElementById('resultBox').style.display = 'block';
-}
-</script>
+    const effectiveRate = salary > 0 ? (tax / salary * 100) : 0;
 
+    let html = '';
+
+    if (taxableBase <= 12560 || tax === 0) {
+        html = `
+            <div class="no-tax">
+                <div class="icon">✓</div>
+                <p>لا توجد ضريبة مستحقة</p>
+                <small>الدخل الخاضع (${fmt(taxableBase)}) لا يتجاوز الحد المعفى 12,560</small>
+            </div>`;
+    } else {
+        const bracketsHtml = brackets.map(b => `
+            <div class="bracket-row">
+                <div class="bracket-info">
+                    <span class="bracket-pct">${b.pct}</span>
+                    <span class="bracket-label">${b.label}</span>
+                </div>
+                <span class="bracket-amount">${fmt(b.tax)}</span>
+            </div>`).join('');
+
+        html = `
+            <div class="tax-hero">
+                <div class="label">إجمالي الضريبة المستحقة</div>
+                <div class="amount animate">${fmt(tax)}</div>
+                <div class="unit">ليرة سورية شهرياً</div>
+            </div>
+
+            <div class="brackets">
+                ${bracketsHtml}
+            </div>
+
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="s-label">الراتب الصافي</div>
+                    <div class="s-value">${fmt(taxableBase)}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="s-label">الحد المعفى</div>
+                    <div class="s-value">12,560</div>
+                </div>
+                <div class="summary-item">
+                    <div class="s-label">صافي بعد الضريبة</div>
+                    <div class="s-value">${fmt(salary - insurance - tax)}</div>
+                </div>
+            </div>
+
+            <div class="effective-rate">
+                <span class="er-label">المعدل الفعلي للضريبة على الراتب:</span>
+                <span class="er-value">${effectiveRate.toFixed(2)}%</span>
+            </div>`;
+    }
+
+    panel.innerHTML = html;
+    setTimeout(() => panel.classList.add('visible'), 10);
+}
+
+// Run on load
+calculateTax();
+</script>
 </body>
 </html>
